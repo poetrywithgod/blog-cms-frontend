@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { 
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
-  BarChart, Bar, PieChart, Pie, Cell 
+  PieChart, Pie, Cell 
 } from "recharts";
 import { 
   FiHome, FiFileText, FiPlusSquare, FiUsers, FiSettings, 
@@ -47,12 +47,6 @@ function Dashboard() {
 
   const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899'];
 
-  const notifications = [
-    { id: 1, text: "New comment on your post", time: "5 min ago", read: false },
-    { id: 2, text: "Your article was featured", time: "1 hour ago", read: false },
-    { id: 3, text: "New user registered", time: "2 hours ago", read: true },
-  ];
-
   return (
     <div className="flex min-h-screen bg-gray-50">
       {/* Sidebar */}
@@ -88,25 +82,17 @@ function Dashboard() {
             Settings
           </Link>
         </nav>
-        
-        <div className="mt-10 p-4 bg-gray-50 rounded-lg">
-          <h3 className="font-medium text-gray-700 mb-2">Upgrade to Pro</h3>
-          <p className="text-sm text-gray-500 mb-3">Get access to all features</p>
-          <button className="w-full bg-blue-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition">
-            Upgrade Now
-          </button>
-        </div>
       </aside>
 
-      {/* Main Content */}
-      <div className="flex-1 md:ml-64 p-6">
+      {/* Main Content - Stretched to fill available space */}
+      <div className="flex-1 min-w-0 md:ml- p-6">
         {/* Top Navbar */}
         <div className="flex justify-between items-center mb-6">
           <button className="md:hidden text-gray-700" onClick={() => setSidebarOpen(true)}>
             <FiMenu size={24} />
           </button>
           
-          <div className="relative w-1/3">
+          <div className="relative w-full md:w-1/3">
             <FiSearch className="absolute left-3 top-3 text-gray-400" />
             <input 
               type="text" 
@@ -115,13 +101,12 @@ function Dashboard() {
             />
           </div>
           
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-4 ml-4">
             <div className="relative">
               <button className="text-gray-600 hover:text-gray-800 p-2 relative">
                 <FiBell size={20} />
                 <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
               </button>
-              {/* Notification dropdown would go here */}
             </div>
             <div className="flex items-center">
               <img 
