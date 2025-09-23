@@ -1,5 +1,5 @@
+// src/pages/Posts.js
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
 import { 
   FiThumbsUp, 
   FiThumbsDown, 
@@ -8,8 +8,54 @@ import {
   FiBookmark,
   FiShare2,
   FiX,
-  FiArrowLeft
+  FiArrowLeft,
+  FiCornerUpLeft,
+  FiMoreVertical,
+  FiEdit,
+  FiTrash2,
+  FiHeart
 } from "react-icons/fi";
+
+// Color palette
+const colors = {
+  primary: {
+    50: '#f0f9ff',
+    100: '#e0f2fe',
+    500: '#0ea5e9',
+    600: '#0284c7',
+    700: '#0369a1'
+  },
+  secondary: {
+    50: '#fdf4ff',
+    100: '#fae8ff',
+    500: '#d946ef',
+    600: '#c026d3'
+  },
+  success: {
+    50: '#f0fdf4',
+    100: '#dcfce7',
+    500: '#22c55e',
+    600: '#16a34a'
+  },
+  warning: {
+    50: '#fffbeb',
+    100: '#fef3c7',
+    500: '#f59e0b',
+    600: '#d97706'
+  },
+  gray: {
+    50: '#f9fafb',
+    100: '#f3f4f6',
+    200: '#e5e7eb',
+    300: '#d1d5db',
+    400: '#9ca3af',
+    500: '#6b7280',
+    600: '#4b5563',
+    700: '#374151',
+    800: '#1f2937',
+    900: '#111827'
+  }
+};
 
 // Extended dummy posts with full content
 const dummyPosts = [
@@ -34,7 +80,6 @@ const dummyPosts = [
     date: "Sep 15, 2025",
     likes: 120,
     dislikes: 5,
-    comments: 20,
     tags: ["React", "Frontend", "JavaScript"],
     readTime: 5
   },
@@ -62,7 +107,6 @@ const dummyPosts = [
     date: "Sep 14, 2025",
     likes: 89,
     dislikes: 3,
-    comments: 15,
     tags: ["AI", "Web Development", "Tools"],
     readTime: 7
   },
@@ -96,7 +140,6 @@ const dummyPosts = [
     date: "Sep 12, 2025",
     likes: 156,
     dislikes: 8,
-    comments: 30,
     tags: ["CSS", "Tailwind", "Frontend"],
     readTime: 6
   },
@@ -109,71 +152,371 @@ function Posts() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [bookmarkedPosts, setBookmarkedPosts] = useState([]);
   const [activeFilter, setActiveFilter] = useState("all");
+  const [comments, setComments] = useState({});
+  const [activeReply, setActiveReply] = useState(null); // { postId, commentId }
+  const [editingComment, setEditingComment] = useState(null); // { postId, commentId, text }
 
-  // Load bookmarks from localStorage on component mount
+  // Load data from localStorage
   useEffect(() => {
     const savedBookmarks = localStorage.getItem("bookmarkedPosts");
-    if (savedBookmarks) {
-      setBookmarkedPosts(JSON.parse(savedBookmarks));
-    }
+    if (savedBookmarks) setBookmarkedPosts(JSON.parse(savedBookmarks));
+
+    const savedComments = localStorage.getItem("postComments");
+    if (savedComments) setComments(JSON.parse(savedComments));
   }, []);
 
-  // Save bookmarks to localStorage whenever they change
+  // Save data to localStorage
   useEffect(() => {
     localStorage.setItem("bookmarkedPosts", JSON.stringify(bookmarkedPosts));
   }, [bookmarkedPosts]);
 
+  useEffect(() => {
+    localStorage.setItem("postComments", JSON.stringify(comments));
+  }, [comments]);
+
+  // Filter posts
   const filteredPosts = posts.filter((post) =>
     post.title.toLowerCase().includes(query.toLowerCase()) ||
     post.excerpt.toLowerCase().includes(query.toLowerCase()) ||
     post.tags.some(tag => tag.toLowerCase().includes(query.toLowerCase()))
   );
 
+  const filteredByBookmark = activeFilter === 'bookmarked' 
+    ? filteredPosts.filter(post => bookmarkedPosts.includes(post.id))
+    : filteredPosts;
+
+  // Engagement handlers
   const handleLike = (id, e) => {
-    e.preventDefault();
-    e.stopPropagation();
+    if (e) e.stopPropagation();
     setPosts(posts.map(post => 
       post.id === id ? { ...post, likes: post.likes + 1 } : post
     ));
   };
 
   const handleDislike = (id, e) => {
-    e.preventDefault();
-    e.stopPropagation();
+    if (e) e.stopPropagation();
     setPosts(posts.map(post => 
       post.id === id ? { ...post, dislikes: post.dislikes + 1 } : post
     ));
   };
 
   const handleBookmark = (id, e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (bookmarkedPosts.includes(id)) {
-      setBookmarkedPosts(bookmarkedPosts.filter(postId => postId !== id));
-    } else {
-      setBookmarkedPosts([...bookmarkedPosts, id]);
-    }
+    if (e) e.stopPropagation();
+    setBookmarkedPosts(prev => 
+      prev.includes(id) ? prev.filter(postId => postId !== id) : [...prev, id]
+    );
   };
 
+  // Modal handlers
   const openPostModal = (post) => {
     setSelectedPost(post);
     setIsModalOpen(true);
-    document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    document.body.style.overflow = 'hidden';
   };
 
   const closePostModal = () => {
     setIsModalOpen(false);
     setSelectedPost(null);
-    document.body.style.overflow = 'unset'; // Re-enable scrolling
+    setActiveReply(null);
+    setEditingComment(null);
+    document.body.style.overflow = 'unset';
   };
 
-  const filteredByBookmark = activeFilter === 'bookmarked' 
-    ? filteredPosts.filter(post => bookmarkedPosts.includes(post.id))
-    : filteredPosts;
+  // Comments logic
+  const addComment = (postId, text, parentId = null) => {
+    if (!text.trim()) return;
+
+    const newComment = {
+      id: Date.now(),
+      text: text.trim(),
+      author: "Current User",
+      authorAvatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80",
+      date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+      likes: 0,
+      replies: [],
+      isEdited: false
+    };
+
+    setComments(prev => {
+      const postComments = prev[postId] || [];
+      
+      if (parentId) {
+        const addReplyToComment = (comments) => {
+          return comments.map(comment => {
+            if (comment.id === parentId) {
+              return { ...comment, replies: [...comment.replies, newComment] };
+            }
+            return {
+              ...comment,
+              replies: addReplyToComment(comment.replies)
+            };
+          });
+        };
+        
+        return { ...prev, [postId]: addReplyToComment(postComments) };
+      } else {
+        return { ...prev, [postId]: [...postComments, newComment] };
+      }
+    });
+
+    setActiveReply(null);
+  };
+
+  const editComment = (postId, commentId, newText) => {
+    if (!newText.trim()) return;
+
+    const updateCommentText = (comments) => {
+      return comments.map(comment => {
+        if (comment.id === commentId) {
+          return { ...comment, text: newText.trim(), isEdited: true };
+        }
+        return {
+          ...comment,
+          replies: updateCommentText(comment.replies)
+        };
+      });
+    };
+
+    setComments(prev => ({
+      ...prev,
+      [postId]: updateCommentText(prev[postId] || [])
+    }));
+
+    setEditingComment(null);
+  };
+
+  const deleteComment = (postId, commentId) => {
+    const removeComment = (comments) => {
+      return comments.filter(comment => {
+        if (comment.id === commentId) return false;
+        return {
+          ...comment,
+          replies: removeComment(comment.replies)
+        };
+      });
+    };
+
+    setComments(prev => ({
+      ...prev,
+      [postId]: removeComment(prev[postId] || [])
+    }));
+  };
+
+  const likeComment = (postId, commentId) => {
+    const updateCommentLikes = (comments) => {
+      return comments.map(comment => {
+        if (comment.id === commentId) {
+          return { ...comment, likes: comment.likes + 1 };
+        }
+        return {
+          ...comment,
+          replies: updateCommentLikes(comment.replies)
+        };
+      });
+    };
+
+    setComments(prev => ({
+      ...prev,
+      [postId]: updateCommentLikes(prev[postId] || [])
+    }));
+  };
+
+  // Get total comment count
+  const getTotalComments = (postId) => {
+    if (!comments[postId]) return 0;
+    return comments[postId].reduce((total, comment) => total + 1 + comment.replies.length, 0);
+  };
+
+  // Comment Components
+  const CommentItem = ({ comment, postId, depth = 0 }) => {
+    const [showOptions, setShowOptions] = useState(false);
+    const isReplying = activeReply?.postId === postId && activeReply?.commentId === comment.id;
+    const isEditing = editingComment?.postId === postId && editingComment?.commentId === comment.id;
+
+    return (
+      <div className={`${depth > 0 ? 'ml-6 pl-4 border-l-2' : ''} ${depth === 0 ? 'border-l-2 border-l-transparent' : ''}`} 
+           style={{ borderLeftColor: depth > 0 ? colors.gray[200] : 'transparent' }}>
+        <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+          <div className="flex items-start justify-between">
+            <div className="flex items-center space-x-3">
+              <img 
+                src={comment.authorAvatar} 
+                alt={comment.author}
+                className="w-8 h-8 rounded-full"
+              />
+              <div>
+                <div className="flex items-center space-x-2">
+                  <span className="font-medium text-gray-900">{comment.author}</span>
+                  <span className="text-gray-500 text-sm">•</span>
+                  <span className="text-gray-500 text-sm">{comment.date}</span>
+                  {comment.isEdited && (
+                    <span className="text-gray-400 text-xs">(edited)</span>
+                  )}
+                </div>
+                
+                {isEditing ? (
+                  <textarea
+                    defaultValue={comment.text}
+                    className="w-full mt-2 p-2 border border-gray-300 rounded text-sm"
+                    rows={3}
+                    autoFocus
+                    onBlur={(e) => editComment(postId, comment.id, e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && e.ctrlKey) {
+                        editComment(postId, comment.id, e.target.value);
+                      }
+                    }}
+                  />
+                ) : (
+                  <p className="text-gray-700 mt-1 text-sm">{comment.text}</p>
+                )}
+              </div>
+            </div>
+
+            <div className="relative">
+              <button 
+                onClick={() => setShowOptions(!showOptions)}
+                className="p-1 rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-600"
+              >
+                <FiMoreVertical size={14} />
+              </button>
+              
+              {showOptions && (
+                <div className="absolute right-0 top-6 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-10">
+                  <button 
+                    onClick={() => {
+                      setEditingComment({ postId, commentId: comment.id, text: comment.text });
+                      setShowOptions(false);
+                    }}
+                    className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 w-full text-left"
+                  >
+                    <FiEdit size={14} />
+                    <span>Edit</span>
+                  </button>
+                  <button 
+                    onClick={() => {
+                      deleteComment(postId, comment.id);
+                      setShowOptions(false);
+                    }}
+                    className="flex items-center space-x-2 px-4 py-2 text-sm text-red-600 hover:bg-gray-50 w-full text-left"
+                  >
+                    <FiTrash2 size={14} />
+                    <span>Delete</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="flex items-center space-x-4 mt-3">
+            <button 
+              onClick={() => likeComment(postId, comment.id)}
+              className="flex items-center space-x-1 text-gray-500 hover:text-red-500 text-sm"
+            >
+              <FiHeart size={14} />
+              <span>{comment.likes || 0}</span>
+            </button>
+            
+            <button 
+              onClick={() => setActiveReply(isReplying ? null : { postId, commentId: comment.id })}
+              className="flex items-center space-x-1 text-gray-500 hover:text-secondary-600 text-sm"
+            >
+              <FiCornerUpLeft size={14} />
+              <span>Reply</span>
+            </button>
+          </div>
+
+          {/* Reply Form */}
+          {isReplying && (
+            <CommentForm 
+              postId={postId} 
+              parentId={comment.id}
+              onCancel={() => setActiveReply(null)}
+              onSubmit={(text) => addComment(postId, text, comment.id)}
+              placeholder={`Replying to ${comment.author}...`}
+            />
+          )}
+
+          {/* Replies */}
+          {comment.replies.length > 0 && (
+            <div className="mt-4 space-y-3">
+              {comment.replies.map(reply => (
+                <CommentItem 
+                  key={reply.id} 
+                  comment={reply} 
+                  postId={postId} 
+                  depth={depth + 1}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  const CommentForm = ({ postId, parentId = null, onCancel, onSubmit, placeholder = "Write a comment..." }) => {
+    const [text, setText] = useState("");
+
+    const handleSubmit = (e) => {
+      e.preventDefault();
+      if (!text.trim()) return;
+      onSubmit?.(text);
+      setText("");
+    };
+
+    return (
+      <form onSubmit={handleSubmit} className="mt-4">
+        <div className="flex space-x-3">
+          <img 
+            src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80" 
+            alt="Your avatar"
+            className="w-8 h-8 rounded-full"
+          />
+          <div className="flex-1">
+            <textarea
+              placeholder={placeholder}
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-secondary-500 resize-none"
+              rows={3}
+            />
+            <div className="flex justify-end space-x-2 mt-2">
+              {onCancel && (
+                <button
+                  type="button"
+                  onClick={onCancel}
+                  className="px-4 py-2 text-gray-600 text-sm hover:text-gray-800 rounded-lg border border-gray-300"
+                >
+                  Cancel
+                </button>
+              )}
+              <button
+                type="submit"
+                className="px-4 py-2 bg-secondary-500 text-white text-sm hover:bg-secondary-600 rounded-lg disabled:opacity-50"
+                disabled={!text.trim()}
+              >
+                {parentId ? 'Reply' : 'Comment'}
+              </button>
+            </div>
+          </div>
+        </div>
+      </form>
+    );
+  };
+
+  const CommentList = ({ commentsArr, postId }) => (
+    <div className="space-y-4">
+      {commentsArr.map(comment => (
+        <CommentItem key={comment.id} comment={comment} postId={postId} />
+      ))}
+    </div>
+  );
 
   return (
     <div className="max-w-7xl mx-auto px-4 md:px-8 py-12">
-      <h2 className="text-3xl font-extrabold text-gray-900 mb-8 text-center">
+      <h2 className="text-3xl font-extrabold text-gray-900 mb-8 text-center" 
+          style={{ color: colors.gray[800] }}>
         📰 Latest Posts
       </h2>
 
@@ -186,19 +529,28 @@ function Posts() {
             placeholder="Search posts by title, excerpt, or tags..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary-500"
+            style={{ backgroundColor: colors.gray[50] }}
           />
         </div>
         
         <div className="flex space-x-2">
           <button 
-            className={`px-4 py-2 rounded-lg ${activeFilter === 'all' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'}`}
+            className={`px-4 py-2 rounded-lg transition-colors ${
+              activeFilter === 'all' 
+                ? 'bg-secondary-500 text-white shadow-lg' 
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
             onClick={() => setActiveFilter('all')}
           >
             All Posts
           </button>
           <button 
-            className={`px-4 py-2 rounded-lg flex items-center ${activeFilter === 'bookmarked' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'}`}
+            className={`px-4 py-2 rounded-lg flex items-center transition-colors ${
+              activeFilter === 'bookmarked' 
+                ? 'bg-warning-500 text-white shadow-lg' 
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
             onClick={() => setActiveFilter('bookmarked')}
           >
             <FiBookmark className="mr-1" /> Saved
@@ -212,7 +564,7 @@ function Posts() {
           <div
             key={post.id}
             onClick={() => openPostModal(post)}
-            className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden group cursor-pointer transform hover:-translate-y-1"
+            className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden group cursor-pointer transform hover:-translate-y-1 border border-gray-100"
           >
             <div className="overflow-hidden relative">
               <img
@@ -223,7 +575,11 @@ function Posts() {
               <div className="absolute top-4 right-4">
                 <button 
                   onClick={(e) => handleBookmark(post.id, e)}
-                  className={`p-2 rounded-full backdrop-blur-sm ${bookmarkedPosts.includes(post.id) ? 'bg-yellow-100 text-yellow-600' : 'bg-white/80 text-gray-600 hover:bg-white'}`}
+                  className={`p-2 rounded-full backdrop-blur-sm transition-colors ${
+                    bookmarkedPosts.includes(post.id) 
+                      ? 'bg-warning-100 text-warning-600' 
+                      : 'bg-white/80 text-gray-600 hover:bg-white'
+                  }`}
                 >
                   <FiBookmark className={bookmarkedPosts.includes(post.id) ? "fill-current" : ""} />
                 </button>
@@ -231,7 +587,7 @@ function Posts() {
               <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
                 <div className="flex flex-wrap gap-2">
                   {post.tags.map(tag => (
-                    <span key={tag} className="px-2 py-1 bg-blue-500/80 text-white text-xs rounded-full backdrop-blur-sm">
+                    <span key={tag} className="px-2 py-1 bg-secondary-500/90 text-white text-xs rounded-full backdrop-blur-sm">
                       #{tag}
                     </span>
                   ))}
@@ -239,7 +595,7 @@ function Posts() {
               </div>
             </div>
             <div className="p-6">
-              <h3 className="text-xl font-semibold text-gray-800 mb-2 group-hover:text-blue-600 transition">
+              <h3 className="text-xl font-semibold text-gray-800 mb-2 group-hover:text-secondary-600 transition-colors">
                 {post.title}
               </h3>
               <p className="text-gray-600 text-sm mb-4">{post.excerpt}</p>
@@ -261,21 +617,21 @@ function Posts() {
                 <div className="flex items-center space-x-4">
                   <button 
                     onClick={(e) => handleLike(post.id, e)}
-                    className="flex items-center text-gray-600 hover:text-blue-600 transition"
+                    className="flex items-center text-gray-600 hover:text-success-600 transition-colors"
                   >
                     <FiThumbsUp className="mr-1" /> {post.likes}
                   </button>
                   <button 
                     onClick={(e) => handleDislike(post.id, e)}
-                    className="flex items-center text-gray-600 hover:text-red-600 transition"
+                    className="flex items-center text-gray-600 hover:text-warning-600 transition-colors"
                   >
                     <FiThumbsDown className="mr-1" /> {post.dislikes}
                   </button>
                   <span className="flex items-center text-gray-600">
-                    <FiMessageCircle className="mr-1" /> {post.comments}
+                    <FiMessageCircle className="mr-1" /> {getTotalComments(post.id)}
                   </span>
                 </div>
-                <div className="text-blue-600 font-medium hover:underline">
+                <div className="text-secondary-600 font-medium hover:underline">
                   Read More
                 </div>
               </div>
@@ -308,13 +664,13 @@ function Posts() {
             <div className="sticky top-0 bg-white border-b z-10 flex justify-between items-center p-6">
               <button 
                 onClick={closePostModal}
-                className="flex items-center text-gray-600 hover:text-gray-900"
+                className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
               >
                 <FiArrowLeft className="mr-2" /> Back to posts
               </button>
               <button 
                 onClick={closePostModal}
-                className="p-2 rounded-full hover:bg-gray-100"
+                className="p-2 rounded-full hover:bg-gray-100 transition-colors"
               >
                 <FiX />
               </button>
@@ -331,7 +687,7 @@ function Posts() {
                 <div className="absolute bottom-0 left-0 right-0 p-8 text-white">
                   <div className="flex flex-wrap gap-2 mb-4">
                     {selectedPost.tags.map(tag => (
-                      <span key={tag} className="px-3 py-1 bg-blue-500/90 text-white text-sm rounded-full">
+                      <span key={tag} className="px-3 py-1 bg-secondary-500/90 text-white text-sm rounded-full">
                         #{tag}
                       </span>
                     ))}
@@ -354,44 +710,64 @@ function Posts() {
                   <div className="flex items-center space-x-6 mb-4 md:mb-0">
                     <button 
                       onClick={(e) => handleLike(selectedPost.id, e)}
-                      className="flex items-center space-x-2 px-4 py-2 rounded-lg hover:bg-gray-100"
+                      className="flex items-center space-x-2 px-4 py-2 rounded-lg hover:bg-success-50 text-gray-600 hover:text-success-600 transition-colors"
                     >
                       <FiThumbsUp />
                       <span>{selectedPost.likes}</span>
                     </button>
                     <button 
                       onClick={(e) => handleDislike(selectedPost.id, e)}
-                      className="flex items-center space-x-2 px-4 py-2 rounded-lg hover:bg-gray-100"
+                      className="flex items-center space-x-2 px-4 py-2 rounded-lg hover:bg-warning-50 text-gray-600 hover:text-warning-600 transition-colors"
                     >
                       <FiThumbsDown />
                       <span>{selectedPost.dislikes}</span>
                     </button>
-                    <button className="flex items-center space-x-2 px-4 py-2 rounded-lg hover:bg-gray-100">
+                    <span className="flex items-center space-x-2 px-4 py-2 text-gray-600">
                       <FiMessageCircle />
-                      <span>{selectedPost.comments} Comments</span>
-                    </button>
+                      <span>{getTotalComments(selectedPost.id)} Comments</span>
+                    </span>
                   </div>
                   
                   <div className="flex items-center space-x-4">
                     <button 
                       onClick={(e) => handleBookmark(selectedPost.id, e)}
-                      className={`p-3 rounded-full ${bookmarkedPosts.includes(selectedPost.id) ? 'bg-yellow-100 text-yellow-600' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+                      className={`p-3 rounded-full transition-colors ${
+                        bookmarkedPosts.includes(selectedPost.id) 
+                          ? 'bg-warning-100 text-warning-600' 
+                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      }`}
                     >
                       <FiBookmark className={bookmarkedPosts.includes(selectedPost.id) ? "fill-current" : ""} />
                     </button>
-                    <button className="p-3 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200">
+                    <button className="p-3 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors">
                       <FiShare2 />
                     </button>
                   </div>
                 </div>
                 
-                {/* Comments section placeholder */}
+                {/* Comments Section */}
                 <div className="mt-12">
-                  <h3 className="text-xl font-semibold mb-6">Comments ({selectedPost.comments})</h3>
-                  <div className="bg-gray-100 rounded-lg p-8 text-center">
-                    <FiMessageCircle className="text-4xl text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-500">Sign in to join the discussion</p>
-                  </div>
+                  <h3 className="text-xl font-semibold mb-6" style={{ color: colors.gray[800] }}>
+                    Comments ({getTotalComments(selectedPost.id)})
+                  </h3>
+                  
+                  {/* Comment Form */}
+                  <CommentForm 
+                    postId={selectedPost.id}
+                    onSubmit={(text) => addComment(selectedPost.id, text)}
+                  />
+                  
+                  {/* Comments List */}
+                  {comments[selectedPost.id] && comments[selectedPost.id].length > 0 ? (
+                    <div className="mt-6">
+                      <CommentList commentsArr={comments[selectedPost.id]} postId={selectedPost.id} />
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-gray-500">
+                      <FiMessageCircle className="text-4xl mx-auto mb-3 opacity-50" />
+                      <p>No comments yet. Be the first to comment!</p>
+                    </div>
+                  )}
                 </div>
               </div>
             </article>
