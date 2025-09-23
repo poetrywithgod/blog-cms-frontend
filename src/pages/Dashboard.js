@@ -41,22 +41,29 @@ function Dashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, setDarkMode] = useState(() => {
+    // Check local storage or system preference
+    const saved = localStorage.getItem('darkMode');
+    return saved ? JSON.parse(saved) : window.matchMedia('(prefers-color-scheme: dark)').matches;
+  });
 
-  // Apply dark mode to document
+  // Apply dark mode to document and save preference
   useEffect(() => {
     if (darkMode) {
       document.documentElement.classList.add('dark');
     } else {
       document.documentElement.classList.remove('dark');
     }
+    localStorage.setItem('darkMode', JSON.stringify(darkMode));
   }, [darkMode]);
 
   // Close dropdowns when clicking outside
   useEffect(() => {
-    const handleClickOutside = () => {
-      setDropdownOpen(false);
-      setNotifOpen(false);
+    const handleClickOutside = (event) => {
+      if (!event.target.closest('.dropdown-container') && !event.target.closest('.notification-container')) {
+        setDropdownOpen(false);
+        setNotifOpen(false);
+      }
     };
 
     document.addEventListener('click', handleClickOutside);
@@ -69,8 +76,8 @@ function Dashboard() {
       label: "Total Posts", 
       value: 42, 
       icon: <FiFileText />, 
-      color: "text-blue-600", 
-      bgColor: "bg-blue-50",
+      color: "text-blue-600 dark:text-blue-400", 
+      bgColor: "bg-blue-50 dark:bg-blue-900/20",
       trend: "+12%",
       description: "From last week"
     },
@@ -78,8 +85,8 @@ function Dashboard() {
       label: "Published", 
       value: 36, 
       icon: <FiEye />, 
-      color: "text-green-600", 
-      bgColor: "bg-green-50",
+      color: "text-green-600 dark:text-green-400", 
+      bgColor: "bg-green-50 dark:bg-green-900/20",
       trend: "+8%",
       description: "Live articles"
     },
@@ -87,8 +94,8 @@ function Dashboard() {
       label: "Drafts", 
       value: 6, 
       icon: <FiEdit />, 
-      color: "text-amber-600", 
-      bgColor: "bg-amber-50",
+      color: "text-amber-600 dark:text-amber-400", 
+      bgColor: "bg-amber-50 dark:bg-amber-900/20",
       trend: "-2%",
       description: "In progress"
     },
@@ -96,8 +103,8 @@ function Dashboard() {
       label: "Total Users", 
       value: 15, 
       icon: <FiUsers />, 
-      color: "text-purple-600", 
-      bgColor: "bg-purple-50",
+      color: "text-purple-600 dark:text-purple-400", 
+      bgColor: "bg-purple-50 dark:bg-purple-900/20",
       trend: "+5%",
       description: "Registered users"
     },
@@ -130,10 +137,48 @@ function Dashboard() {
   const COLORS = ["#3B82F6", "#10B981", "#F59E0B", "#8B5CF6", "#EC4899"];
 
   const quickActions = [
-    { title: "Create New Post", desc: "Start writing a new blog post", icon: <FiPlusSquare />, color: "bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300", link: "/create-post" },
-    { title: "Invite Users", desc: "Invite team members to collaborate", icon: <FiUserPlus />, color: "bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-300", link: "/users" },
-    { title: "View Comments", desc: "Check recent comments on your posts", icon: <FiMessageSquare />, color: "bg-purple-100 text-purple-600 dark:bg-purple-900 dark:text-purple-300", link: "/comments" },
+    { 
+      title: "Create New Post", 
+      desc: "Start writing a new blog post", 
+      icon: <FiPlusSquare />, 
+      color: "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-300",
+      hoverColor: "hover:bg-blue-200 dark:hover:bg-blue-800/50",
+      link: "/create-post" 
+    },
+    { 
+      title: "Invite Users", 
+      desc: "Invite team members to collaborate", 
+      icon: <FiUserPlus />, 
+      color: "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-300",
+      hoverColor: "hover:bg-green-200 dark:hover:bg-green-800/50",
+      link: "/users" 
+    },
+    { 
+      title: "View Comments", 
+      desc: "Check recent comments on your posts", 
+      icon: <FiMessageSquare />, 
+      color: "bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-300",
+      hoverColor: "hover:bg-purple-200 dark:hover:bg-purple-800/50",
+      link: "/comments" 
+    },
   ];
+
+  // Custom tooltip style for charts
+  const CustomTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-3">
+          <p className="font-medium text-gray-900 dark:text-white">{label}</p>
+          {payload.map((entry, index) => (
+            <p key={index} className="text-sm" style={{ color: entry.color }}>
+              {entry.name}: {entry.value}
+            </p>
+          ))}
+        </div>
+      );
+    }
+    return null;
+  };
 
   return (
     <div className="flex min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
@@ -148,14 +193,14 @@ function Dashboard() {
       {/* Sidebar */}
       <aside className={`fixed md:static inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 p-6 transition-transform duration-300 transform ${
         sidebarOpen ? "translate-x-0" : "-translate-x-full"
-      } md:translate-x-0 shadow-lg md:shadow-none`}>
+      } md:translate-x-0 shadow-lg md:shadow-none border-r border-gray-200 dark:border-gray-700`}>
         <div className="flex items-center justify-between mb-10">
           <h2 className="text-2xl font-bold flex items-center text-gray-800 dark:text-white">
-            <FiTrendingUp className="mr-2 text-blue-600" />
+            <FiTrendingUp className="mr-2 text-blue-600 dark:text-blue-400" />
             CMS Admin
           </h2>
           <button 
-            className="md:hidden text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+            className="md:hidden text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             onClick={() => setSidebarOpen(false)}
           >
             <FiX size={20} />
@@ -173,7 +218,7 @@ function Dashboard() {
             <Link
               key={item.to}
               to={item.to}
-              className="flex items-center p-3 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-700 rounded-lg font-medium transition-colors duration-200"
+              className="flex items-center p-3 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-700 rounded-lg font-medium transition-all duration-200 hover:translate-x-1"
             >
               {item.icon}
               <span className="ml-3">{item.label}</span>
@@ -189,7 +234,7 @@ function Dashboard() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
             <div className="flex items-center gap-4">
               <button 
-                className="md:hidden text-gray-700 dark:text-gray-300 p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"
+                className="md:hidden text-gray-700 dark:text-gray-300 p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
                 onClick={() => setSidebarOpen(true)}
               >
                 <FiMenu size={24} />
@@ -207,25 +252,27 @@ function Dashboard() {
                 <input 
                   type="text" 
                   placeholder="Search..." 
-                  className="pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 w-full sm:w-64"
+                  className="pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 w-full sm:w-64 transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500"
                 />
               </div>
 
               {/* Dark Mode Toggle */}
               <button 
                 onClick={() => setDarkMode(!darkMode)} 
-                className="p-2 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                className="p-2 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all duration-200 transform hover:scale-110"
+                title={darkMode ? "Switch to light mode" : "Switch to dark mode"}
               >
                 {darkMode ? <FiSun size={20} /> : <FiMoon size={20} />}
               </button>
 
               {/* Notifications */}
-              <div className="relative">
+              <div className="relative notification-container">
                 <button 
-                  className="p-2 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                  className="p-2 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all duration-200 transform hover:scale-110"
                   onClick={(e) => {
                     e.stopPropagation();
                     setNotifOpen(!notifOpen);
+                    setDropdownOpen(false);
                   }}
                 >
                   <FiBell size={20} />
@@ -234,7 +281,7 @@ function Dashboard() {
                 {notifOpen && (
                   <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 shadow-xl rounded-lg border border-gray-200 dark:border-gray-700 z-10">
                     <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-                      <p className="font-semibold">Notifications</p>
+                      <p className="font-semibold text-gray-900 dark:text-white">Notifications</p>
                     </div>
                     <div className="p-4">
                       <p className="text-sm text-gray-600 dark:text-gray-400 text-center">No new notifications</p>
@@ -244,26 +291,27 @@ function Dashboard() {
               </div>
 
               {/* User Menu */}
-              <div className="relative">
+              <div className="relative dropdown-container">
                 <button 
-                  className="flex items-center gap-2 p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                  className="flex items-center gap-2 p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all duration-200 transform hover:scale-105"
                   onClick={(e) => {
                     e.stopPropagation();
                     setDropdownOpen(!dropdownOpen);
+                    setNotifOpen(false);
                   }}
                 >
                   <img 
                     src="https://randomuser.me/api/portraits/men/32.jpg" 
                     alt="User" 
-                    className="w-8 h-8 rounded-full border-2 border-gray-300 dark:border-gray-600"
+                    className="w-8 h-8 rounded-full border-2 border-gray-300 dark:border-gray-600 transition-all duration-200 hover:border-blue-500 dark:hover:border-blue-400"
                   />
                 </button>
                 {dropdownOpen && (
                   <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 shadow-xl rounded-lg border border-gray-200 dark:border-gray-700 z-10">
                     <div className="p-2">
-                      <Link to="/profile" className="block px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Profile</Link>
-                      <Link to="/settings" className="block px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Settings</Link>
-                      <button className="block w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 rounded text-red-600 dark:text-red-400">
+                      <Link to="/profile" className="block px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors">Profile</Link>
+                      <Link to="/settings" className="block px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors">Settings</Link>
+                      <button className="block w-full text-left px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors">
                         Logout
                       </button>
                     </div>
@@ -274,7 +322,7 @@ function Dashboard() {
           </div>
 
           {/* Welcome Banner */}
-          <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl p-6 text-white mb-8 shadow-lg">
+          <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl p-6 text-white mb-8 shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-0.5">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
               <div>
                 <h1 className="text-2xl font-bold mb-2">Welcome back, Admin! 👋</h1>
@@ -285,7 +333,7 @@ function Dashboard() {
                 </div>
               </div>
               <div className="mt-4 lg:mt-0">
-                <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded-lg p-4">
+                <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded-lg p-4 hover:bg-opacity-30 transition-all duration-200">
                   <p className="text-sm opacity-90">Your blog is performing great this week!</p>
                   <p className="text-lg font-semibold">+15% more visitors</p>
                 </div>
@@ -296,7 +344,10 @@ function Dashboard() {
           {/* Stats Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             {stats.map((stat, index) => (
-              <div key={index} className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300 border border-gray-100 dark:border-gray-700">
+              <div 
+                key={index} 
+                className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100 dark:border-gray-700 hover:border-gray-200 dark:hover:border-gray-600 transform hover:-translate-y-1"
+              >
                 <div className="flex justify-between items-start">
                   <div>
                     <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">{stat.label}</p>
@@ -305,14 +356,14 @@ function Dashboard() {
                     </p>
                     <div className="flex items-center mt-2">
                       <span className={`text-sm font-medium ${
-                        stat.trend.startsWith("+") ? "text-green-600" : "text-red-600"
+                        stat.trend.startsWith("+") ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
                       }`}>
                         {stat.trend}
                       </span>
                       <span className="text-xs text-gray-500 dark:text-gray-400 ml-2">{stat.description}</span>
                     </div>
                   </div>
-                  <div className={`p-3 rounded-xl ${stat.bgColor} dark:bg-opacity-20`}>
+                  <div className={`p-3 rounded-xl ${stat.bgColor} transition-all duration-200 hover:scale-110`}>
                     <div className={`text-xl ${stat.color}`}>{stat.icon}</div>
                   </div>
                 </div>
@@ -323,13 +374,13 @@ function Dashboard() {
           {/* Charts Section */}
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
             {/* Line Chart */}
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-all duration-300 transform hover:-translate-y-0.5">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2">
-                  <FiBarChart2 className="text-blue-600" />
-                  <h2 className="text-lg font-semibold">Posts Analytics</h2>
+                  <FiBarChart2 className="text-blue-600 dark:text-blue-400" />
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Posts Analytics</h2>
                 </div>
-                <select className="text-sm border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 dark:bg-gray-700 focus:ring-2 focus:ring-blue-500">
+                <select className="text-sm border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 transition-colors hover:border-gray-400 dark:hover:border-gray-500">
                   <option>Last 7 days</option>
                   <option>Last 30 days</option>
                   <option>Last 90 days</option>
@@ -337,16 +388,17 @@ function Dashboard() {
               </div>
               <ResponsiveContainer width="100%" height={300}>
                 <LineChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                  <XAxis dataKey="name" stroke="#6b7280" />
-                  <YAxis stroke="#6b7280" />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: darkMode ? '#1f2937' : '#ffffff',
-                      borderColor: darkMode ? '#374151' : '#e5e7eb',
-                      borderRadius: '0.5rem'
-                    }}
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" strokeOpacity={0.5} />
+                  <XAxis 
+                    dataKey="name" 
+                    stroke="#6b7280" 
+                    fontSize={12}
                   />
+                  <YAxis 
+                    stroke="#6b7280" 
+                    fontSize={12}
+                  />
+                  <Tooltip content={<CustomTooltip />} />
                   <Legend />
                   <Line 
                     type="monotone" 
@@ -369,10 +421,10 @@ function Dashboard() {
             </div>
 
             {/* Pie Chart */}
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-all duration-300 transform hover:-translate-y-0.5">
               <div className="flex items-center gap-2 mb-6">
-                <FiPieChart className="text-purple-600" />
-                <h2 className="text-lg font-semibold">Content Distribution</h2>
+                <FiPieChart className="text-purple-600 dark:text-purple-400" />
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Content Distribution</h2>
               </div>
               <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
@@ -390,25 +442,18 @@ function Dashboard() {
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip 
-                    formatter={(value) => [`${value}%`, 'Percentage']}
-                    contentStyle={{ 
-                      backgroundColor: darkMode ? '#1f2937' : '#ffffff',
-                      borderColor: darkMode ? '#374151' : '#e5e7eb',
-                      borderRadius: '0.5rem'
-                    }}
-                  />
+                  <Tooltip content={<CustomTooltip />} />
                 </PieChart>
               </ResponsiveContainer>
             </div>
           </div>
 
           {/* Recent Posts */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 mb-8">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 mb-8 hover:shadow-md transition-all duration-300 transform hover:-translate-y-0.5">
             <div className="p-6 border-b border-gray-200 dark:border-gray-700">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                <h2 className="text-lg font-semibold mb-2 sm:mb-0">Recent Posts</h2>
-                <Link to="/posts" className="text-blue-600 dark:text-blue-400 hover:underline font-medium text-sm">
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2 sm:mb-0">Recent Posts</h2>
+                <Link to="/posts" className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium text-sm transition-colors">
                   View all posts →
                 </Link>
               </div>
@@ -426,37 +471,39 @@ function Dashboard() {
                 </thead>
                 <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                   {recentPosts.map((post) => (
-                    <tr key={post.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                    <tr key={post.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 group">
                       <td className="p-4">
                         <div className="flex items-center gap-3">
-                          <img src={post.img} alt={post.title} className="w-12 h-8 rounded-lg object-cover" />
-                          <Link to={`/posts/${post.id}`} className="font-medium text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400">
+                          <img src={post.img} alt={post.title} className="w-12 h-8 rounded-lg object-cover transition-transform duration-200 group-hover:scale-105" />
+                          <Link to={`/posts/${post.id}`} className="font-medium text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                             {post.title}
                           </Link>
                         </div>
                       </td>
                       <td className="p-4">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium transition-colors ${
                           post.status === "Published" 
-                            ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300" 
-                            : "bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300"
+                            ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300 hover:bg-green-200 dark:hover:bg-green-800" 
+                            : "bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300 hover:bg-amber-200 dark:hover:bg-amber-800"
                         }`}>
                           {post.status}
                         </span>
                       </td>
-                      <td className="p-4 text-sm text-gray-600 dark:text-gray-400">{post.date}</td>
+                      <td className="p-4 text-sm text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-gray-200 transition-colors">
+                        {post.date}
+                      </td>
                       <td className="p-4">
-                        <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                        <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-gray-200 transition-colors">
                           <FiEye className="mr-1" size={16} />
                           {post.views.toLocaleString()}
                         </div>
                       </td>
                       <td className="p-4">
-                        <div className="flex items-center gap-2">
-                          <button className="p-1 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900 rounded transition-colors">
+                        <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                          <button className="p-1 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded transition-all duration-200 transform hover:scale-110">
                             <FiEdit size={16} />
                           </button>
-                          <button className="p-1 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900 rounded transition-colors">
+                          <button className="p-1 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded transition-all duration-200 transform hover:scale-110">
                             <FiTrash2 size={16} />
                           </button>
                         </div>
@@ -471,24 +518,27 @@ function Dashboard() {
           {/* Quick Actions */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {quickActions.map((action, i) => (
-              <div key={i} className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow duration-300">
+              <Link
+                key={i}
+                to={action.link}
+                className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-all duration-300 transform hover:-translate-y-1 group"
+              >
                 <div className="flex items-start justify-between mb-4">
-                  <div className={`p-3 rounded-lg ${action.color} dark:bg-opacity-20`}>
+                  <div className={`p-3 rounded-lg ${action.color} ${action.hoverColor} transition-colors duration-200 group-hover:scale-110`}>
                     {action.icon}
                   </div>
                 </div>
-                <h3 className="font-semibold text-gray-900 dark:text-white mb-2">{action.title}</h3>
+                <h3 className="font-semibold text-gray-900 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                  {action.title}
+                </h3>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">{action.desc}</p>
-                <Link 
-                  to={action.link} 
-                  className="inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium text-sm"
-                >
+                <div className="inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium text-sm transition-all duration-200 group-hover:translate-x-1">
                   Get started
-                  <svg className="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="ml-1 w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
-                </Link>
-              </div>
+                </div>
+              </Link>
             ))}
           </div>
         </div>
