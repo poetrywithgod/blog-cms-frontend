@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import CountUp from "react-countup";
 import {
   LineChart,
   Line,
@@ -8,6 +9,7 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  Legend,
   PieChart,
   Pie,
   Cell,
@@ -29,79 +31,84 @@ import {
   FiCalendar,
   FiMessageSquare,
   FiUserPlus,
+  FiMoon,
+  FiSun,
+  FiBarChart2,
+  FiPieChart,
 } from "react-icons/fi";
 
 function Dashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
 
-  // Dummy stats
+  // Apply dark mode to document
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [darkMode]);
+
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = () => {
+      setDropdownOpen(false);
+      setNotifOpen(false);
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, []);
+
+  // Dummy stats with better trending data
   const stats = [
-    {
-      label: "Total Posts",
-      value: 42,
-      icon: <FiFileText size={24} />,
-      color: "bg-blue-500",
+    { 
+      label: "Total Posts", 
+      value: 42, 
+      icon: <FiFileText />, 
+      color: "text-blue-600", 
+      bgColor: "bg-blue-50",
       trend: "+12%",
+      description: "From last week"
     },
-    {
-      label: "Published",
-      value: 36,
-      icon: <FiEye size={24} />,
-      color: "bg-green-500",
+    { 
+      label: "Published", 
+      value: 36, 
+      icon: <FiEye />, 
+      color: "text-green-600", 
+      bgColor: "bg-green-50",
       trend: "+8%",
+      description: "Live articles"
     },
-    {
-      label: "Drafts",
-      value: 6,
-      icon: <FiEdit size={24} />,
-      color: "bg-yellow-500",
+    { 
+      label: "Drafts", 
+      value: 6, 
+      icon: <FiEdit />, 
+      color: "text-amber-600", 
+      bgColor: "bg-amber-50",
       trend: "-2%",
+      description: "In progress"
     },
-    {
-      label: "Total Users",
-      value: 15,
-      icon: <FiUsers size={24} />,
-      color: "bg-purple-500",
+    { 
+      label: "Total Users", 
+      value: 15, 
+      icon: <FiUsers />, 
+      color: "text-purple-600", 
+      bgColor: "bg-purple-50",
       trend: "+5%",
+      description: "Registered users"
     },
   ];
 
   const recentPosts = [
-    {
-      id: 1,
-      title: "Understanding React Hooks",
-      status: "Published",
-      date: "2025-09-14",
-      views: 1245,
-    },
-    {
-      id: 2,
-      title: "TailwindCSS Tips and Tricks",
-      status: "Draft",
-      date: "2025-09-13",
-      views: 0,
-    },
-    {
-      id: 3,
-      title: "React Router v6 Complete Guide",
-      status: "Published",
-      date: "2025-09-12",
-      views: 2897,
-    },
-    {
-      id: 4,
-      title: "Building Modern Dashboards",
-      status: "Published",
-      date: "2025-09-11",
-      views: 3456,
-    },
-    {
-      id: 5,
-      title: "API Security Best Practices",
-      status: "Draft",
-      date: "2025-09-10",
-      views: 0,
-    },
+    { id: 1, title: "Understanding React Hooks", status: "Published", date: "2025-09-14", views: 1245, img: "https://source.unsplash.com/random/60x40?tech" },
+    { id: 2, title: "TailwindCSS Tips and Tricks", status: "Draft", date: "2025-09-13", views: 0, img: "https://source.unsplash.com/random/60x40?design" },
+    { id: 3, title: "React Router v6 Complete Guide", status: "Published", date: "2025-09-12", views: 2897, img: "https://source.unsplash.com/random/60x40?react" },
+    { id: 4, title: "Building Modern Dashboards", status: "Published", date: "2025-09-11", views: 3456, img: "https://source.unsplash.com/random/60x40?dashboard" },
+    { id: 5, title: "API Security Best Practices", status: "Draft", date: "2025-09-10", views: 0, img: "https://source.unsplash.com/random/60x40?security" },
   ];
 
   const chartData = [
@@ -122,152 +129,191 @@ function Dashboard() {
 
   const COLORS = ["#3B82F6", "#10B981", "#F59E0B", "#8B5CF6", "#EC4899"];
 
+  const quickActions = [
+    { title: "Create New Post", desc: "Start writing a new blog post", icon: <FiPlusSquare />, color: "bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300", link: "/create-post" },
+    { title: "Invite Users", desc: "Invite team members to collaborate", icon: <FiUserPlus />, color: "bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-300", link: "/users" },
+    { title: "View Comments", desc: "Check recent comments on your posts", icon: <FiMessageSquare />, color: "bg-purple-100 text-purple-600 dark:bg-purple-900 dark:text-purple-300", link: "/comments" },
+  ];
+
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+      {/* Sidebar Overlay */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside
-        className={`bg-white  p-6 transition-all duration-300 transform ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-64"
-        } md:translate-x-0 fixed md:static h-full z-50`}
-      >
+      <aside className={`fixed md:static inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 p-6 transition-transform duration-300 transform ${
+        sidebarOpen ? "translate-x-0" : "-translate-x-full"
+      } md:translate-x-0 shadow-lg md:shadow-none`}>
         <div className="flex items-center justify-between mb-10">
-          <h2 className="text-2xl font-bold text-gray-800 flex items-center">
+          <h2 className="text-2xl font-bold flex items-center text-gray-800 dark:text-white">
             <FiTrendingUp className="mr-2 text-blue-600" />
             CMS Admin
           </h2>
-          <button
-            className="md:hidden text-gray-700"
+          <button 
+            className="md:hidden text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
             onClick={() => setSidebarOpen(false)}
           >
             <FiX size={20} />
           </button>
         </div>
+        
         <nav className="space-y-2">
-          <Link
-            to="/dashboard"
-            className="flex items-center p-3 text-blue-600 bg-blue-50 rounded-lg font-medium"
-          >
-            <FiHome className="mr-3" />
-            Dashboard
-          </Link>
-          <Link
-            to="/posts"
-            className="flex items-center p-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg font-medium"
-          >
-            <FiFileText className="mr-3" />
-            Posts
-          </Link>
-          <Link
-            to="/create-post"
-            className="flex items-center p-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg font-medium"
-          >
-            <FiPlusSquare className="mr-3" />
-            Create Post
-          </Link>
-          <Link
-            to="/users"
-            className="flex items-center p-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg font-medium"
-          >
-            <FiUsers className="mr-3" />
-            Users
-          </Link>
-          <Link
-            to="/settings"
-            className="flex items-center p-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg font-medium"
-          >
-            <FiSettings className="mr-3" />
-            Settings
-          </Link>
+          {[
+            { to: "/dashboard", icon: <FiHome />, label: "Dashboard" },
+            { to: "/posts", icon: <FiFileText />, label: "Posts" },
+            { to: "/create-post", icon: <FiPlusSquare />, label: "Create Post" },
+            { to: "/users", icon: <FiUsers />, label: "Users" },
+            { to: "/settings", icon: <FiSettings />, label: "Settings" },
+          ].map((item) => (
+            <Link
+              key={item.to}
+              to={item.to}
+              className="flex items-center p-3 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-700 rounded-lg font-medium transition-colors duration-200"
+            >
+              {item.icon}
+              <span className="ml-3">{item.label}</span>
+            </Link>
+          ))}
         </nav>
       </aside>
 
-      {/* Main Content - Centered with equal spacing on both sides */}
-      <div className="flex-1 min-w-0 md:ml">
-        <div className="max-w-7xl mx-auto px-4 md:px-6 py-4 md:py-6">
-          {/* Top Navbar - Mobile Responsive */}
-          <div className="flex flex-wrap md:flex-nowrap items-center justify-between mb-6 gap-2 md:gap-0">
-            {/* Menu Button */}
-            <button
-              className="md:hidden text-gray-700 p-2"
-              onClick={() => setSidebarOpen(true)}
-            >
-              <FiMenu size={24} />
-            </button>
-
-            {/* Search Input */}
-            <div className="flex-1 relative w-full md:w-auto">
-              <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search..."
-                className="w-full md:w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+      {/* Main Content */}
+      <div className="flex-1 min-w-0 transition-all duration-300">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          {/* Top Navigation */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
+            <div className="flex items-center gap-4">
+              <button 
+                className="md:hidden text-gray-700 dark:text-gray-300 p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"
+                onClick={() => setSidebarOpen(true)}
+              >
+                <FiMenu size={24} />
+              </button>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Dashboard Overview</h1>
+                <p className="text-gray-600 dark:text-gray-400">Welcome back! Here's your content performance</p>
+              </div>
             </div>
 
-            {/* Icons */}
-            <div className="flex items-center space-x-2 md:space-x-4 mt-2 md:mt-0">
-              {/* Notifications */}
+            <div className="flex items-center gap-3">
+              {/* Search */}
               <div className="relative">
-                <button className="text-gray-600 hover:text-gray-800 p-2 relative">
-                  <FiBell size={20} />
-                  <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
-                </button>
-              </div>
-
-              {/* Avatar */}
-              <div>
-                <img
-                  src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=32&h=32&q=80"
-                  alt="User"
-                  className="w-8 h-8 rounded-full"
+                <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <input 
+                  type="text" 
+                  placeholder="Search..." 
+                  className="pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 w-full sm:w-64"
                 />
               </div>
-            </div>
-          </div>
 
-          {/* Welcome Header */}
-          <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl p-4 md:p-6 text-white mb-6 md:mb-8 shadow-lg">
-            <h1 className="text-xl md:text-2xl font-bold mb-2">
-              Welcome back, Admin!
-            </h1>
-            <p className="opacity-90 text-sm md:text-base">
-              Here's what's happening with your blog today.
-            </p>
-            <div className="flex items-center mt-3 md:mt-4">
-              <FiCalendar className="mr-2" size={16} />
-              <span className="text-sm md:text-base">September 15, 2025</span>
-            </div>
-          </div>
-
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-6 md:mb-8">
-            {stats.map((stat, index) => (
-              <div
-                key={index}
-                className="bg-white p-4 md:p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
+              {/* Dark Mode Toggle */}
+              <button 
+                onClick={() => setDarkMode(!darkMode)} 
+                className="p-2 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
               >
+                {darkMode ? <FiSun size={20} /> : <FiMoon size={20} />}
+              </button>
+
+              {/* Notifications */}
+              <div className="relative">
+                <button 
+                  className="p-2 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setNotifOpen(!notifOpen);
+                  }}
+                >
+                  <FiBell size={20} />
+                  <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                </button>
+                {notifOpen && (
+                  <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 shadow-xl rounded-lg border border-gray-200 dark:border-gray-700 z-10">
+                    <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+                      <p className="font-semibold">Notifications</p>
+                    </div>
+                    <div className="p-4">
+                      <p className="text-sm text-gray-600 dark:text-gray-400 text-center">No new notifications</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* User Menu */}
+              <div className="relative">
+                <button 
+                  className="flex items-center gap-2 p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setDropdownOpen(!dropdownOpen);
+                  }}
+                >
+                  <img 
+                    src="https://randomuser.me/api/portraits/men/32.jpg" 
+                    alt="User" 
+                    className="w-8 h-8 rounded-full border-2 border-gray-300 dark:border-gray-600"
+                  />
+                </button>
+                {dropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 shadow-xl rounded-lg border border-gray-200 dark:border-gray-700 z-10">
+                    <div className="p-2">
+                      <Link to="/profile" className="block px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Profile</Link>
+                      <Link to="/settings" className="block px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Settings</Link>
+                      <button className="block w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 rounded text-red-600 dark:text-red-400">
+                        Logout
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Welcome Banner */}
+          <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl p-6 text-white mb-8 shadow-lg">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+              <div>
+                <h1 className="text-2xl font-bold mb-2">Welcome back, Admin! 👋</h1>
+                <p className="opacity-90 mb-4">Here's what's happening with your blog today.</p>
+                <div className="flex items-center text-blue-100">
+                  <FiCalendar className="mr-2" />
+                  <span>{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                </div>
+              </div>
+              <div className="mt-4 lg:mt-0">
+                <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded-lg p-4">
+                  <p className="text-sm opacity-90">Your blog is performing great this week!</p>
+                  <p className="text-lg font-semibold">+15% more visitors</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Stats Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            {stats.map((stat, index) => (
+              <div key={index} className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300 border border-gray-100 dark:border-gray-700">
                 <div className="flex justify-between items-start">
                   <div>
-                    <p className="text-gray-500 text-xs md:text-sm">
-                      {stat.label}
+                    <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">{stat.label}</p>
+                    <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">
+                      <CountUp end={stat.value} duration={2.5} />
                     </p>
-                    <p className="text-xl md:text-2xl font-bold text-gray-800 mt-1">
-                      {stat.value}
-                    </p>
-                    <p
-                      className={`text-xs mt-2 ${
-                        stat.trend.startsWith("+")
-                          ? "text-green-500"
-                          : "text-red-500"
-                      }`}
-                    >
-                      {stat.trend} from last week
-                    </p>
+                    <div className="flex items-center mt-2">
+                      <span className={`text-sm font-medium ${
+                        stat.trend.startsWith("+") ? "text-green-600" : "text-red-600"
+                      }`}>
+                        {stat.trend}
+                      </span>
+                      <span className="text-xs text-gray-500 dark:text-gray-400 ml-2">{stat.description}</span>
+                    </div>
                   </div>
-                  <div
-                    className={`p-2 md:p-3 rounded-full ${stat.color} text-white`}
-                  >
-                    {React.cloneElement(stat.icon, { size: 20 })}
+                  <div className={`p-3 rounded-xl ${stat.bgColor} dark:bg-opacity-20`}>
+                    <div className={`text-xl ${stat.color}`}>{stat.icon}</div>
                   </div>
                 </div>
               </div>
@@ -275,166 +321,143 @@ function Dashboard() {
           </div>
 
           {/* Charts Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-8">
-            {/* Posts Analytics */}
-            <div className="bg-white p-4 md:p-6 rounded-xl shadow-sm border border-gray-100">
-              <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-4">
-                <h2 className="text-lg md:text-xl font-semibold text-gray-800 mb-2 md:mb-0">
-                  Posts Analytics
-                </h2>
-                <select className="text-sm border border-gray-300 rounded-lg px-3 py-1 w-full md:w-auto">
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
+            {/* Line Chart */}
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-2">
+                  <FiBarChart2 className="text-blue-600" />
+                  <h2 className="text-lg font-semibold">Posts Analytics</h2>
+                </div>
+                <select className="text-sm border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 dark:bg-gray-700 focus:ring-2 focus:ring-blue-500">
                   <option>Last 7 days</option>
                   <option>Last 30 days</option>
                   <option>Last 90 days</option>
                 </select>
               </div>
-              <ResponsiveContainer width="100%" height={200}>
+              <ResponsiveContainer width="100%" height={300}>
                 <LineChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
-                  <XAxis dataKey="name" stroke="#6B7280" fontSize={12} />
-                  <YAxis stroke="#6B7280" fontSize={12} />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "#fff",
-                      border: "1px solid #E5E7EB",
-                      borderRadius: "8px",
-                      fontSize: "12px",
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                  <XAxis dataKey="name" stroke="#6b7280" />
+                  <YAxis stroke="#6b7280" />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: darkMode ? '#1f2937' : '#ffffff',
+                      borderColor: darkMode ? '#374151' : '#e5e7eb',
+                      borderRadius: '0.5rem'
                     }}
                   />
-                  <Line
-                    type="monotone"
-                    dataKey="posts"
-                    stroke="#3B82F6"
-                    strokeWidth={2}
-                    dot={{ fill: "#3B82F6", strokeWidth: 2, r: 3 }}
-                    activeDot={{ r: 5, fill: "#3B82F6" }}
+                  <Legend />
+                  <Line 
+                    type="monotone" 
+                    dataKey="posts" 
+                    stroke="#3B82F6" 
+                    strokeWidth={3} 
+                    dot={{ fill: '#3B82F6', strokeWidth: 2, r: 4 }} 
+                    activeDot={{ r: 6 }}
                   />
-                  <Line
-                    type="monotone"
-                    dataKey="visitors"
-                    stroke="#10B981"
-                    strokeWidth={2}
-                    dot={{ fill: "#10B981", strokeWidth: 2, r: 3 }}
-                    activeDot={{ r: 5, fill: "#10B981" }}
+                  <Line 
+                    type="monotone" 
+                    dataKey="visitors" 
+                    stroke="#10B981" 
+                    strokeWidth={3} 
+                    dot={{ fill: '#10B981', strokeWidth: 2, r: 4 }}
+                    activeDot={{ r: 6 }}
                   />
                 </LineChart>
               </ResponsiveContainer>
             </div>
 
-            {/* Categories Distribution */}
-            <div className="bg-white p-4 md:p-6 rounded-xl shadow-sm border border-gray-100">
-              <h2 className="text-lg md:text-xl font-semibold text-gray-800 mb-4">
-                Content Distribution
-              </h2>
-              <ResponsiveContainer width="100%" height={200}>
+            {/* Pie Chart */}
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+              <div className="flex items-center gap-2 mb-6">
+                <FiPieChart className="text-purple-600" />
+                <h2 className="text-lg font-semibold">Content Distribution</h2>
+              </div>
+              <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
-                  <Pie
-                    data={categoryData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={50}
-                    outerRadius={70}
+                  <Pie 
+                    data={categoryData} 
+                    cx="50%" 
+                    cy="50%" 
+                    innerRadius={60} 
+                    outerRadius={100} 
                     paddingAngle={2}
-                    dataKey="value"
+                    dataKey="value" 
+                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                   >
                     {categoryData.map((entry, index) => (
-                      <Cell
-                        key={`cell-${index}`}
-                        fill={COLORS[index % COLORS.length]}
-                      />
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip />
+                  <Tooltip 
+                    formatter={(value) => [`${value}%`, 'Percentage']}
+                    contentStyle={{ 
+                      backgroundColor: darkMode ? '#1f2937' : '#ffffff',
+                      borderColor: darkMode ? '#374151' : '#e5e7eb',
+                      borderRadius: '0.5rem'
+                    }}
+                  />
                 </PieChart>
               </ResponsiveContainer>
-              <div className="flex flex-wrap justify-center gap-2 mt-4">
-                {categoryData.map((entry, index) => (
-                  <div key={index} className="flex items-center">
-                    <div
-                      className="w-2 h-2 md:w-3 md:h-3 rounded-full mr-1 md:mr-2"
-                      style={{ backgroundColor: COLORS[index % COLORS.length] }}
-                    ></div>
-                    <span className="text-xs md:text-sm text-gray-600">
-                      {entry.name}
-                    </span>
-                  </div>
-                ))}
-              </div>
             </div>
           </div>
 
-          {/* Recent Posts Table */}
-          <div className="bg-white p-4 md:p-6 rounded-xl shadow-sm border border-gray-100 mb-6 md:mb-8">
-            <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-4 md:mb-6">
-              <h2 className="text-lg md:text-xl font-semibold text-gray-800 mb-2 md:mb-0">
-                Recent Posts
-              </h2>
-              <Link
-                to="/posts"
-                className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-              >
-                View all →
-              </Link>
+          {/* Recent Posts */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 mb-8">
+            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                <h2 className="text-lg font-semibold mb-2 sm:mb-0">Recent Posts</h2>
+                <Link to="/posts" className="text-blue-600 dark:text-blue-400 hover:underline font-medium text-sm">
+                  View all posts →
+                </Link>
+              </div>
             </div>
             <div className="overflow-x-auto">
-              <table className="w-full text-left min-w-[600px] md:min-w-full">
-                <thead className="bg-gray-50">
+              <table className="w-full">
+                <thead className="bg-gray-50 dark:bg-gray-700">
                   <tr>
-                    <th className="p-2 md:p-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Title
-                    </th>
-                    <th className="p-2 md:p-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th className="p-2 md:p-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Date
-                    </th>
-                    <th className="p-2 md:p-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Views
-                    </th>
-                    <th className="p-2 md:p-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
-                    </th>
+                    <th className="p-4 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Post</th>
+                    <th className="p-4 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
+                    <th className="p-4 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Date</th>
+                    <th className="p-4 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Views</th>
+                    <th className="p-4 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200">
+                <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                   {recentPosts.map((post) => (
-                    <tr
-                      key={post.id}
-                      className="hover:bg-gray-50 transition-colors"
-                    >
-                      <td className="p-2 md:p-3 text-gray-700 font-medium text-sm md:text-base">
-                        {post.title}
+                    <tr key={post.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                      <td className="p-4">
+                        <div className="flex items-center gap-3">
+                          <img src={post.img} alt={post.title} className="w-12 h-8 rounded-lg object-cover" />
+                          <Link to={`/posts/${post.id}`} className="font-medium text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400">
+                            {post.title}
+                          </Link>
+                        </div>
                       </td>
-                      <td className="p-2 md:p-3">
-                        <span
-                          className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            post.status === "Published"
-                              ? "bg-green-100 text-green-800"
-                              : "bg-yellow-100 text-yellow-800"
-                          }`}
-                        >
+                      <td className="p-4">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          post.status === "Published" 
+                            ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300" 
+                            : "bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300"
+                        }`}>
                           {post.status}
                         </span>
                       </td>
-                      <td className="p-2 md:p-3 text-gray-500 text-sm">
-                        {post.date}
-                      </td>
-                      <td className="p-2 md:p-3">
-                        <div className="flex items-center">
-                          <FiEye className="text-gray-400 mr-1" size={12} />
-                          <span className="text-gray-600 text-sm">
-                            {post.views.toLocaleString()}
-                          </span>
+                      <td className="p-4 text-sm text-gray-600 dark:text-gray-400">{post.date}</td>
+                      <td className="p-4">
+                        <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                          <FiEye className="mr-1" size={16} />
+                          {post.views.toLocaleString()}
                         </div>
                       </td>
-                      <td className="p-2 md:p-3">
-                        <div className="flex space-x-2">
-                          <button className="text-blue-600 hover:text-blue-800 p-1">
-                            <FiEdit size={14} />
+                      <td className="p-4">
+                        <div className="flex items-center gap-2">
+                          <button className="p-1 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900 rounded transition-colors">
+                            <FiEdit size={16} />
                           </button>
-                          <button className="text-red-600 hover:text-red-800 p-1">
-                            <FiTrash2 size={14} />
+                          <button className="p-1 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900 rounded transition-colors">
+                            <FiTrash2 size={16} />
                           </button>
                         </div>
                       </td>
@@ -446,64 +469,31 @@ function Dashboard() {
           </div>
 
           {/* Quick Actions */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-            <div className="bg-white p-4 md:p-5 rounded-xl shadow-sm border border-gray-100">
-              <div className="flex items-center mb-3 md:mb-4">
-                <div className="p-2 bg-blue-100 rounded-lg text-blue-600 mr-3">
-                  <FiPlusSquare size={18} />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {quickActions.map((action, i) => (
+              <div key={i} className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow duration-300">
+                <div className="flex items-start justify-between mb-4">
+                  <div className={`p-3 rounded-lg ${action.color} dark:bg-opacity-20`}>
+                    {action.icon}
+                  </div>
                 </div>
-                <h3 className="font-medium text-gray-800 text-sm md:text-base">
-                  Create New Post
-                </h3>
-            </div>
-            <p className="text-gray-500 text-xs md:text-sm mb-3 md:mb-4">
-              Start writing a new blog post
-            </p>
-            <Link
-              to="/create-post"
-              className="text-blue-600 text-xs md:text-sm font-medium hover:text-blue-800"
-            >
-              Create Post →
-            </Link>
-          </div>
-
-          <div className="bg-white p-4 md:p-5 rounded-xl shadow-sm border border-gray-100">
-            <div className="flex items-center mb-3 md:mb-4">
-              <div className="p-2 bg-green-100 rounded-lg text-green-600 mr-3">
-                <FiUserPlus size={18} />
+                <h3 className="font-semibold text-gray-900 dark:text-white mb-2">{action.title}</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">{action.desc}</p>
+                <Link 
+                  to={action.link} 
+                  className="inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium text-sm"
+                >
+                  Get started
+                  <svg className="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </Link>
               </div>
-              <h3 className="font-medium text-gray-800 text-sm md:text-base">
-                Invite Users
-              </h3>
-            </div>
-            <p className="text-gray-500 text-xs md:text-sm mb-3 md:mb-4">
-              Invite team members to collaborate
-            </p>
-            <button className="text-blue-600 text-xs md:text-sm font-medium hover:text-blue-800">
-              Invite Users →
-            </button>
-          </div>
-
-          <div className="bg-white p-4 md:p-5 rounded-xl shadow-sm border border-gray-100">
-            <div className="flex items-center mb-3 md:mb-4">
-              <div className="p-2 bg-purple-100 rounded-lg text-purple-600 mr-3">
-                <FiMessageSquare size={18} />
-              </div>
-              <h3 className="font-medium text-gray-800 text-sm md:text-base">
-                View Comments
-              </h3>
-            </div>
-            <p className="text-gray-500 text-xs md:text-sm mb-3 md:mb-4">
-              Check recent comments on your posts
-            </p>
-            <button className="text-blue-600 text-xs md:text-sm font-medium hover:text-blue-800">
-              View Comments →
-            </button>
+            ))}
           </div>
         </div>
       </div>
     </div>
-  </div>
   );
 }
 
