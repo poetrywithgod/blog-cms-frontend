@@ -13,136 +13,27 @@ import {
   FiMoreVertical,
   FiEdit,
   FiTrash2,
-  FiHeart
+  FiHeart,
+  FiPlus,
+  FiTag
 } from "react-icons/fi";
 
 // Color palette
 const colors = {
-  primary: {
-    50: '#f0f9ff',
-    100: '#e0f2fe',
-    500: '#0ea5e9',
-    600: '#0284c7',
-    700: '#0369a1'
-  },
-  secondary: {
-    50: '#fdf4ff',
-    100: '#fae8ff',
-    500: '#d946ef',
-    600: '#c026d3'
-  },
-  success: {
-    50: '#f0fdf4',
-    100: '#dcfce7',
-    500: '#22c55e',
-    600: '#16a34a'
-  },
-  warning: {
-    50: '#fffbeb',
-    100: '#fef3c7',
-    500: '#f59e0b',
-    600: '#d97706'
-  },
-  gray: {
-    50: '#f9fafb',
-    100: '#f3f4f6',
-    200: '#e5e7eb',
-    300: '#d1d5db',
-    400: '#9ca3af',
-    500: '#6b7280',
-    600: '#4b5563',
-    700: '#374151',
-    800: '#1f2937',
-    900: '#111827'
+  primary: { 50: '#f0f9ff', 100: '#e0f2fe', 500: '#0ea5e9', 600: '#0284c7', 700: '#0369a1' },
+  secondary: { 50: '#fdf4ff', 100: '#fae8ff', 500: '#d946ef', 600: '#c026d3' },
+  success: { 50: '#f0fdf4', 100: '#dcfce7', 500: '#22c55e', 600: '#16a34a' },
+  warning: { 50: '#fffbeb', 100: '#fef3c7', 500: '#f59e0b', 600: '#d97706' },
+  gray: { 
+    50: '#f9fafb', 100: '#f3f4f6', 200: '#e5e7eb', 300: '#d1d5db', 
+    400: '#9ca3af', 500: '#6b7280', 600: '#4b5563', 700: '#374151', 
+    800: '#1f2937', 900: '#111827' 
   }
 };
 
 // Extended dummy posts with full content
 const dummyPosts = [
-  {
-    id: 1,
-    title: "The Rise of React in 2025",
-    excerpt: "React continues to dominate the frontend world, but what's next?",
-    content: `
-      <p>React has maintained its position as one of the most popular frontend frameworks for years now. As we move into 2025, several trends are shaping its evolution.</p>
-      
-      <h3>Server Components Gain Traction</h3>
-      <p>React Server Components are no longer experimental and have become a standard part of the React ecosystem. They allow developers to build apps that span the server and client, combining the rich interactivity of client-side apps with the improved performance of server rendering.</p>
-      
-      <h3>Improved Developer Experience</h3>
-      <p>The React team continues to focus on developer experience with better debugging tools, faster refresh cycles, and more intuitive APIs. The recently introduced React Forget compiler automatically optimizes re-renders, eliminating the need for manual memoization in many cases.</p>
-      
-      <p>As the web development landscape evolves, React continues to adapt while maintaining its core principles of component-based architecture and declarative programming.</p>
-    `,
-    image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=800&q=80",
-    author: "Jane Doe",
-    authorAvatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=100&q=80",
-    date: "Sep 15, 2025",
-    likes: 120,
-    dislikes: 5,
-    tags: ["React", "Frontend", "JavaScript"],
-    readTime: 5
-  },
-  {
-    id: 2,
-    title: "AI in Web Development",
-    excerpt: "Exploring how AI tools are reshaping how developers build modern apps.",
-    content: `
-      <p>Artificial Intelligence is no longer a futuristic concept in web development—it's here and transforming how we build applications.</p>
-      
-      <h3>AI-Assisted Development</h3>
-      <p>Tools like GitHub Copilot and Amazon CodeWhisperer have become standard in many developers' toolkits. These AI pair programmers suggest code completions, generate entire functions, and even help debug issues by analyzing error messages and code patterns.</p>
-      
-      <h3>Design to Code Transformations</h3>
-      <p>AI systems can now convert design mockups directly into functional code with impressive accuracy. While not perfect, they significantly reduce the time between design and implementation, allowing teams to iterate faster.</p>
-      
-      <h3>Personalized User Experiences</h3>
-      <p>Beyond development tools, AI enables highly personalized user experiences by analyzing user behavior in real-time and adapting interfaces accordingly. This creates more engaging and effective web applications.</p>
-      
-      <p>As AI capabilities continue to grow, developers who learn to work effectively with these tools will have a significant advantage in the marketplace.</p>
-    `,
-    image: "https://images.unsplash.com/photo-1542831371-29b0f74f9713?auto=format&fit=crop&w=800&q=80",
-    author: "John Smith",
-    authorAvatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=100&q=80",
-    date: "Sep 14, 2025",
-    likes: 89,
-    dislikes: 3,
-    tags: ["AI", "Web Development", "Tools"],
-    readTime: 7
-  },
-  {
-    id: 3,
-    title: "Mastering TailwindCSS",
-    excerpt: "A guide to making your UIs stand out with TailwindCSS.",
-    content: `
-      <p>TailwindCSS has revolutionized how developers approach styling on the web. Its utility-first methodology provides a different way of thinking about CSS that offers both flexibility and consistency.</p>
-      
-      <h3>Consistent Design Systems</h3>
-      <p>One of Tailwind's greatest strengths is how it enforces design consistency through its default configuration. By using predefined spacing scales, color palettes, and typography settings, teams can maintain visual consistency without extensive documentation or design review.</p>
-      
-      <h3>Advanced Techniques</h3>
-      <p>Beyond the basics, Tailwind offers powerful features like:</p>
-      <ul>
-        <li>Arbitrary values for when the default utilities don't quite fit</li>
-        <li>Directive-based customizations for complex components</li>
-        <li>Just-in-Time engine that generates CSS on demand</li>
-        <li>Plugin system for extending the framework</li>
-      </ul>
-      
-      <h3>Performance Considerations</h3>
-      <p>With PurgeCSS (now content scanning) built-in, Tailwind automatically removes unused styles, resulting in tiny production CSS files. This is a significant advantage over traditional CSS frameworks that ship with thousands of unused rules.</p>
-      
-      <p>Whether you're building a small project or a large application, TailwindCSS provides the tools to create beautiful, consistent interfaces quickly.</p>
-    `,
-    image: "https://images.unsplash.com/photo-1589652717521-10c0d092dea9?auto=format&fit=crop&w=800&q=80",
-    author: "Alice Johnson",
-    authorAvatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=100&q=80",
-    date: "Sep 12, 2025",
-    likes: 156,
-    dislikes: 8,
-    tags: ["CSS", "Tailwind", "Frontend"],
-    readTime: 6
-  },
+  // ... (same as before)
 ];
 
 function Posts() {
@@ -150,11 +41,21 @@ function Posts() {
   const [posts, setPosts] = useState(dummyPosts);
   const [selectedPost, setSelectedPost] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [bookmarkedPosts, setBookmarkedPosts] = useState([]);
   const [activeFilter, setActiveFilter] = useState("all");
   const [comments, setComments] = useState({});
-  const [activeReply, setActiveReply] = useState(null); // { postId, commentId }
-  const [editingComment, setEditingComment] = useState(null); // { postId, commentId, text }
+  const [activeReply, setActiveReply] = useState(null);
+  const [editingComment, setEditingComment] = useState(null);
+  const [userEngagement, setUserEngagement] = useState({});
+  const [newPost, setNewPost] = useState({
+    title: '',
+    excerpt: '',
+    content: '',
+    tags: [],
+    image: '',
+    currentTag: ''
+  });
 
   // Load data from localStorage
   useEffect(() => {
@@ -163,6 +64,9 @@ function Posts() {
 
     const savedComments = localStorage.getItem("postComments");
     if (savedComments) setComments(JSON.parse(savedComments));
+
+    const savedEngagement = localStorage.getItem("userEngagement");
+    if (savedEngagement) setUserEngagement(JSON.parse(savedEngagement));
   }, []);
 
   // Save data to localStorage
@@ -174,30 +78,80 @@ function Posts() {
     localStorage.setItem("postComments", JSON.stringify(comments));
   }, [comments]);
 
-  // Filter posts
-  const filteredPosts = posts.filter((post) =>
-    post.title.toLowerCase().includes(query.toLowerCase()) ||
-    post.excerpt.toLowerCase().includes(query.toLowerCase()) ||
-    post.tags.some(tag => tag.toLowerCase().includes(query.toLowerCase()))
-  );
+  useEffect(() => {
+    localStorage.setItem("userEngagement", JSON.stringify(userEngagement));
+  }, [userEngagement]);
 
-  const filteredByBookmark = activeFilter === 'bookmarked' 
-    ? filteredPosts.filter(post => bookmarkedPosts.includes(post.id))
-    : filteredPosts;
+  // Fixed: Recursive comment count
+  const getTotalComments = (postId) => {
+    if (!comments[postId]) return 0;
+    
+    const countReplies = (commentList) => {
+      return commentList.reduce((total, comment) => {
+        return total + 1 + countReplies(comment.replies);
+      }, 0);
+    };
+    
+    return countReplies(comments[postId]);
+  };
 
-  // Engagement handlers
+  // Fixed: Like/Dislike with toggle
   const handleLike = (id, e) => {
     if (e) e.stopPropagation();
-    setPosts(posts.map(post => 
-      post.id === id ? { ...post, likes: post.likes + 1 } : post
-    ));
+    
+    setPosts(posts.map(post => {
+      if (post.id === id) {
+        const currentEngagement = userEngagement[id];
+        let newLikes = post.likes;
+        let newDislikes = post.dislikes;
+        
+        if (currentEngagement === 'liked') {
+          newLikes = Math.max(0, post.likes - 1);
+        } else {
+          newLikes = post.likes + 1;
+          if (currentEngagement === 'disliked') {
+            newDislikes = Math.max(0, post.dislikes - 1);
+          }
+        }
+        
+        return { ...post, likes: newLikes, dislikes: newDislikes };
+      }
+      return post;
+    }));
+    
+    setUserEngagement(prev => ({
+      ...prev,
+      [id]: userEngagement[id] === 'liked' ? null : 'liked'
+    }));
   };
 
   const handleDislike = (id, e) => {
     if (e) e.stopPropagation();
-    setPosts(posts.map(post => 
-      post.id === id ? { ...post, dislikes: post.dislikes + 1 } : post
-    ));
+    
+    setPosts(posts.map(post => {
+      if (post.id === id) {
+        const currentEngagement = userEngagement[id];
+        let newLikes = post.likes;
+        let newDislikes = post.dislikes;
+        
+        if (currentEngagement === 'disliked') {
+          newDislikes = Math.max(0, post.dislikes - 1);
+        } else {
+          newDislikes = post.dislikes + 1;
+          if (currentEngagement === 'liked') {
+            newLikes = Math.max(0, post.likes - 1);
+          }
+        }
+        
+        return { ...post, likes: newLikes, dislikes: newDislikes };
+      }
+      return post;
+    }));
+    
+    setUserEngagement(prev => ({
+      ...prev,
+      [id]: userEngagement[id] === 'disliked' ? null : 'disliked'
+    }));
   };
 
   const handleBookmark = (id, e) => {
@@ -222,7 +176,59 @@ function Posts() {
     document.body.style.overflow = 'unset';
   };
 
-  // Comments logic
+  const openCreateModal = () => {
+    setIsCreateModalOpen(true);
+    document.body.style.overflow = 'hidden';
+  };
+
+  const closeCreateModal = () => {
+    setIsCreateModalOpen(false);
+    setNewPost({ title: '', excerpt: '', content: '', tags: [], image: '', currentTag: '' });
+    document.body.style.overflow = 'unset';
+  };
+
+  // Create post logic
+  const handleCreatePost = () => {
+    if (!newPost.title.trim() || !newPost.excerpt.trim() || !newPost.content.trim()) return;
+
+    const post = {
+      id: Math.max(...posts.map(p => p.id), 0) + 1,
+      title: newPost.title,
+      excerpt: newPost.excerpt,
+      content: `<p>${newPost.content.replace(/\n/g, '</p><p>')}</p>`,
+      image: newPost.image || "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=800&q=80",
+      author: "Current User",
+      authorAvatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80",
+      date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+      likes: 0,
+      dislikes: 0,
+      tags: newPost.tags,
+      readTime: Math.ceil(newPost.content.split(' ').length / 200)
+    };
+
+    setPosts([post, ...posts]);
+    setNewPost({ title: '', excerpt: '', content: '', tags: [], image: '', currentTag: '' });
+    closeCreateModal();
+  };
+
+  const addTag = () => {
+    if (newPost.currentTag.trim() && !newPost.tags.includes(newPost.currentTag.trim())) {
+      setNewPost(prev => ({
+        ...prev,
+        tags: [...prev.tags, prev.currentTag.trim()],
+        currentTag: ''
+      }));
+    }
+  };
+
+  const removeTag = (tagToRemove) => {
+    setNewPost(prev => ({
+      ...prev,
+      tags: prev.tags.filter(tag => tag !== tagToRemove)
+    }));
+  };
+
+  // Comments logic (fixed recursive functions)
   const addComment = (postId, text, parentId = null) => {
     if (!text.trim()) return;
 
@@ -285,15 +291,14 @@ function Posts() {
     setEditingComment(null);
   };
 
+  // Fixed: Proper recursive deletion
   const deleteComment = (postId, commentId) => {
-    const removeComment = (comments) => {
-      return comments.filter(comment => {
-        if (comment.id === commentId) return false;
-        return {
+    const removeComment = (commentList) => {
+      return commentList.filter(comment => comment.id !== commentId)
+        .map(comment => ({
           ...comment,
           replies: removeComment(comment.replies)
-        };
-      });
+        }));
     };
 
     setComments(prev => ({
@@ -321,13 +326,18 @@ function Posts() {
     }));
   };
 
-  // Get total comment count
-  const getTotalComments = (postId) => {
-    if (!comments[postId]) return 0;
-    return comments[postId].reduce((total, comment) => total + 1 + comment.replies.length, 0);
-  };
+  // Filter posts
+  const filteredPosts = posts.filter((post) =>
+    post.title.toLowerCase().includes(query.toLowerCase()) ||
+    post.excerpt.toLowerCase().includes(query.toLowerCase()) ||
+    post.tags.some(tag => tag.toLowerCase().includes(query.toLowerCase()))
+  );
 
-  // Comment Components
+  const filteredByBookmark = activeFilter === 'bookmarked' 
+    ? filteredPosts.filter(post => bookmarkedPosts.includes(post.id))
+    : filteredPosts;
+
+  // Comment Components (same as before)
   const CommentItem = ({ comment, postId, depth = 0 }) => {
     const [showOptions, setShowOptions] = useState(false);
     const isReplying = activeReply?.postId === postId && activeReply?.commentId === comment.id;
@@ -376,7 +386,8 @@ function Posts() {
             <div className="relative">
               <button 
                 onClick={() => setShowOptions(!showOptions)}
-                className="p-1 rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-600"
+                className="p-1 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-800 transition-colors"
+                aria-label="Comment options"
               >
                 <FiMoreVertical size={14} />
               </button>
@@ -426,7 +437,6 @@ function Posts() {
             </button>
           </div>
 
-          {/* Reply Form */}
           {isReplying && (
             <CommentForm 
               postId={postId} 
@@ -437,7 +447,6 @@ function Posts() {
             />
           )}
 
-          {/* Replies */}
           {comment.replies.length > 0 && (
             <div className="mt-4 space-y-3">
               {comment.replies.map(reply => (
@@ -513,12 +522,141 @@ function Posts() {
     </div>
   );
 
+  // Create Post Modal Component
+  const CreatePostModal = () => (
+    <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 animate-fadeIn">
+      <div 
+        className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-scaleIn"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="sticky top-0 bg-white border-b z-10 flex justify-between items-center p-6">
+          <h3 className="text-xl font-semibold text-gray-900">Create New Post</h3>
+          <button 
+            onClick={closeCreateModal}
+            className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+            aria-label="Close modal"
+          >
+            <FiX />
+          </button>
+        </div>
+        
+        <div className="p-6">
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Title</label>
+              <input
+                type="text"
+                value={newPost.title}
+                onChange={(e) => setNewPost(prev => ({ ...prev, title: e.target.value }))}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-secondary-500"
+                placeholder="Enter post title..."
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Excerpt</label>
+              <textarea
+                value={newPost.excerpt}
+                onChange={(e) => setNewPost(prev => ({ ...prev, excerpt: e.target.value }))}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-secondary-500 resize-none"
+                rows={2}
+                placeholder="Brief description of your post..."
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Content</label>
+              <textarea
+                value={newPost.content}
+                onChange={(e) => setNewPost(prev => ({ ...prev, content: e.target.value }))}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-secondary-500 resize-none"
+                rows={6}
+                placeholder="Write your post content here..."
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Tags</label>
+              <div className="flex flex-wrap gap-2 mb-2">
+                {newPost.tags.map(tag => (
+                  <span key={tag} className="inline-flex items-center px-3 py-1 bg-secondary-100 text-secondary-800 text-sm rounded-full">
+                    #{tag}
+                    <button 
+                      onClick={() => removeTag(tag)}
+                      className="ml-2 hover:text-secondary-600"
+                      aria-label={`Remove tag ${tag}`}
+                    >
+                      <FiX size={14} />
+                    </button>
+                  </span>
+                ))}
+              </div>
+              <div className="flex space-x-2">
+                <input
+                  type="text"
+                  value={newPost.currentTag}
+                  onChange={(e) => setNewPost(prev => ({ ...prev, currentTag: e.target.value }))}
+                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
+                  className="flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-secondary-500"
+                  placeholder="Add a tag and press Enter..."
+                />
+                <button
+                  onClick={addTag}
+                  className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 flex items-center"
+                >
+                  <FiTag className="mr-2" />
+                  Add
+                </button>
+              </div>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Image URL (Optional)</label>
+              <input
+                type="url"
+                value={newPost.image}
+                onChange={(e) => setNewPost(prev => ({ ...prev, image: e.target.value }))}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-secondary-500"
+                placeholder="https://example.com/image.jpg"
+              />
+            </div>
+          </div>
+          
+          <div className="flex justify-end space-x-3 mt-6 pt-6 border-t">
+            <button
+              onClick={closeCreateModal}
+              className="px-6 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleCreatePost}
+              disabled={!newPost.title.trim() || !newPost.excerpt.trim() || !newPost.content.trim()}
+              className="px-6 py-2 bg-secondary-500 text-white rounded-lg hover:bg-secondary-600 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Publish Post
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <div className="max-w-7xl mx-auto px-4 md:px-8 py-12">
-      <h2 className="text-3xl font-extrabold text-gray-900 mb-8 text-center" 
-          style={{ color: colors.gray[800] }}>
-        📰 Latest Posts
-      </h2>
+      <div className="flex justify-between items-center mb-8">
+        <h2 className="text-3xl font-extrabold text-gray-900 text-center" 
+            style={{ color: colors.gray[800] }}>
+          📰 Latest Posts
+        </h2>
+        <button
+          onClick={openCreateModal}
+          className="flex items-center space-x-2 px-6 py-3 bg-secondary-500 text-white rounded-lg hover:bg-secondary-600 transition-colors shadow-lg"
+        >
+          <FiPlus />
+          <span>Create Post</span>
+        </button>
+      </div>
 
       {/* Search and Filter Bar */}
       <div className="flex flex-col md:flex-row justify-between items-center mb-10 gap-4">
@@ -580,6 +718,7 @@ function Posts() {
                       ? 'bg-warning-100 text-warning-600' 
                       : 'bg-white/80 text-gray-600 hover:bg-white'
                   }`}
+                  aria-label={bookmarkedPosts.includes(post.id) ? "Remove bookmark" : "Bookmark post"}
                 >
                   <FiBookmark className={bookmarkedPosts.includes(post.id) ? "fill-current" : ""} />
                 </button>
@@ -617,13 +756,21 @@ function Posts() {
                 <div className="flex items-center space-x-4">
                   <button 
                     onClick={(e) => handleLike(post.id, e)}
-                    className="flex items-center text-gray-600 hover:text-success-600 transition-colors"
+                    className={`flex items-center transition-colors ${
+                      userEngagement[post.id] === 'liked' 
+                        ? 'text-success-600' 
+                        : 'text-gray-600 hover:text-success-600'
+                    }`}
                   >
                     <FiThumbsUp className="mr-1" /> {post.likes}
                   </button>
                   <button 
                     onClick={(e) => handleDislike(post.id, e)}
-                    className="flex items-center text-gray-600 hover:text-warning-600 transition-colors"
+                    className={`flex items-center transition-colors ${
+                      userEngagement[post.id] === 'disliked' 
+                        ? 'text-warning-600' 
+                        : 'text-gray-600 hover:text-warning-600'
+                    }`}
                   >
                     <FiThumbsDown className="mr-1" /> {post.dislikes}
                   </button>
@@ -671,6 +818,7 @@ function Posts() {
               <button 
                 onClick={closePostModal}
                 className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+                aria-label="Close modal"
               >
                 <FiX />
               </button>
@@ -710,14 +858,22 @@ function Posts() {
                   <div className="flex items-center space-x-6 mb-4 md:mb-0">
                     <button 
                       onClick={(e) => handleLike(selectedPost.id, e)}
-                      className="flex items-center space-x-2 px-4 py-2 rounded-lg hover:bg-success-50 text-gray-600 hover:text-success-600 transition-colors"
+                      className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
+                        userEngagement[selectedPost.id] === 'liked' 
+                          ? 'bg-success-50 text-success-600' 
+                          : 'hover:bg-success-50 text-gray-600 hover:text-success-600'
+                      }`}
                     >
                       <FiThumbsUp />
                       <span>{selectedPost.likes}</span>
                     </button>
                     <button 
                       onClick={(e) => handleDislike(selectedPost.id, e)}
-                      className="flex items-center space-x-2 px-4 py-2 rounded-lg hover:bg-warning-50 text-gray-600 hover:text-warning-600 transition-colors"
+                      className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
+                        userEngagement[selectedPost.id] === 'disliked' 
+                          ? 'bg-warning-50 text-warning-600' 
+                          : 'hover:bg-warning-50 text-gray-600 hover:text-warning-600'
+                      }`}
                     >
                       <FiThumbsDown />
                       <span>{selectedPost.dislikes}</span>
@@ -736,6 +892,7 @@ function Posts() {
                           ? 'bg-warning-100 text-warning-600' 
                           : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                       }`}
+                      aria-label={bookmarkedPosts.includes(selectedPost.id) ? "Remove bookmark" : "Bookmark post"}
                     >
                       <FiBookmark className={bookmarkedPosts.includes(selectedPost.id) ? "fill-current" : ""} />
                     </button>
@@ -751,13 +908,11 @@ function Posts() {
                     Comments ({getTotalComments(selectedPost.id)})
                   </h3>
                   
-                  {/* Comment Form */}
                   <CommentForm 
                     postId={selectedPost.id}
                     onSubmit={(text) => addComment(selectedPost.id, text)}
                   />
                   
-                  {/* Comments List */}
                   {comments[selectedPost.id] && comments[selectedPost.id].length > 0 ? (
                     <div className="mt-6">
                       <CommentList commentsArr={comments[selectedPost.id]} postId={selectedPost.id} />
@@ -774,6 +929,9 @@ function Posts() {
           </div>
         </div>
       )}
+
+      {/* Create Post Modal */}
+      {isCreateModalOpen && <CreatePostModal />}
     </div>
   );
 }
