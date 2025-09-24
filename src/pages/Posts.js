@@ -1,5 +1,5 @@
 // src/pages/Posts.js
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { 
   FiThumbsUp, 
   FiThumbsDown, 
@@ -33,7 +33,158 @@ const colors = {
 
 // Extended dummy posts with full content
 const dummyPosts = [
-  // ... (same as before)
+  {
+    id: 1,
+    title: "The Future of Web Development",
+    excerpt: "Exploring the latest trends and technologies shaping the future of web development in 2024.",
+    content: `
+      <p>The web development landscape is evolving at an unprecedented pace. With the rise of AI-powered tools, serverless architectures, and new frameworks, developers need to stay ahead of the curve.</p>
+      
+      <p>One of the most exciting developments is the integration of artificial intelligence into development workflows. Tools like GitHub Copilot are changing how we write code, while AI-powered testing tools are making quality assurance more efficient.</p>
+      
+      <p>Serverless computing continues to gain traction, offering developers the ability to build applications without worrying about infrastructure management. This paradigm shift allows teams to focus more on business logic and less on operational concerns.</p>
+      
+      <p>The React ecosystem remains strong with new features like concurrent rendering and server components. Meanwhile, frameworks like Svelte and SolidJS are gaining popularity for their performance benefits.</p>
+      
+      <p>As we look to the future, the lines between frontend and backend continue to blur. Full-stack frameworks like Next.js and Nuxt.js are becoming the standard for modern web applications.</p>
+    `,
+    image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=800&q=80",
+    author: "Sarah Chen",
+    authorAvatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?auto=format&fit=crop&w=100&q=80",
+    date: "Mar 15, 2024",
+    likes: 42,
+    dislikes: 3,
+    tags: ["webdev", "javascript", "react", "AI"],
+    readTime: 5
+  },
+  {
+    id: 2,
+    title: "Mastering CSS Grid Layout",
+    excerpt: "A comprehensive guide to creating complex layouts with CSS Grid.",
+    content: `
+      <p>CSS Grid has revolutionized how we think about web layouts. Unlike Flexbox, which is one-dimensional, Grid gives us true two-dimensional control over our designs.</p>
+      
+      <p>Let's start with the basics. To create a grid container, simply set display: grid on an element. From there, you can define your columns and rows using grid-template-columns and grid-template-rows.</p>
+      
+      <p>One of Grid's most powerful features is the ability to create responsive layouts without media queries. Using the repeat() function with auto-fit or auto-fill, you can create layouts that automatically adjust to their container.</p>
+      
+      <p>Grid areas provide a semantic way to name sections of your layout. This makes your CSS more readable and maintainable, especially for complex designs.</p>
+      
+      <p>Don't forget about grid gap (now called gap in the latest specification) for spacing between grid items. This property replaces the old grid-gap and provides consistent spacing.</p>
+    `,
+    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80",
+    author: "Mike Rodriguez",
+    authorAvatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&q=80",
+    date: "Mar 12, 2024",
+    likes: 28,
+    dislikes: 1,
+    tags: ["css", "webdesign", "frontend", "layout"],
+    readTime: 7
+  },
+  {
+    id: 3,
+    title: "TypeScript Best Practices",
+    excerpt: "Learn how to write better, more maintainable TypeScript code with these expert tips.",
+    content: `
+      <p>TypeScript has become an essential tool for modern JavaScript development. Its type system helps catch errors early and makes code more self-documenting.</p>
+      
+      <p>One of the first best practices is to enable strict mode in your tsconfig.json. This turns on all the strict type-checking options and helps you write more robust code.</p>
+      
+      <p>When defining interfaces, prefer interface over type for object shapes. Interfaces are more extensible and work better with declaration merging.</p>
+      
+      <p>Use union types and discriminated unions to model states that can be in different forms. This pattern is particularly useful for state management in React applications.</p>
+      
+      <p>Don't overuse any. If you find yourself reaching for any, consider whether you can use unknown instead, or if you need to properly type the value.</p>
+      
+      <p>Generics are your friend. They allow you to write flexible, reusable code while maintaining type safety. Practice writing generic functions and components.</p>
+    `,
+    image: "https://images.unsplash.com/photo-1556075798-4825dfaaf498?auto=format&fit=crop&w=800&q=80",
+    author: "Emma Wilson",
+    authorAvatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=100&q=80",
+    date: "Mar 10, 2024",
+    likes: 35,
+    dislikes: 2,
+    tags: ["typescript", "javascript", "programming", "webdev"],
+    readTime: 6
+  },
+  {
+    id: 4,
+    title: "Building Accessible Web Applications",
+    excerpt: "Why accessibility matters and how to implement it in your projects.",
+    content: `
+      <p>Web accessibility isn't just a nice-to-have feature—it's a fundamental requirement for creating inclusive digital experiences. Approximately 15% of the world's population lives with some form of disability.</p>
+      
+      <p>Start with semantic HTML. Using the right elements (like button instead of div for clickable elements) provides built-in accessibility features and better screen reader support.</p>
+      
+      <p>Ensure proper color contrast. The WCAG guidelines recommend a contrast ratio of at least 4.5:1 for normal text. Use tools like the WebAIM Contrast Checker to verify your colors.</p>
+      
+      <p>Keyboard navigation is crucial. Many users navigate websites using only their keyboard. Test your site by tabbing through all interactive elements.</p>
+      
+      <p>Provide alternative text for images. Descriptive alt text helps screen reader users understand the content and purpose of images.</p>
+      
+      <p>Use ARIA landmarks and roles sparingly. ARIA should complement semantic HTML, not replace it. Only use ARIA when native HTML semantics aren't sufficient.</p>
+    `,
+    image: "https://images.unsplash.com/photo-1551650975-87deedd944c3?auto=format&fit=crop&w=800&q=80",
+    author: "David Kim",
+    authorAvatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=100&q=80",
+    date: "Mar 8, 2024",
+    likes: 51,
+    dislikes: 0,
+    tags: ["accessibility", "webdev", "inclusion", "UX"],
+    readTime: 8
+  },
+  {
+    id: 5,
+    title: "React Performance Optimization",
+    excerpt: "Techniques to make your React applications faster and more efficient.",
+    content: `
+      <p>Performance is a critical aspect of user experience. Slow React applications can lead to frustration and abandonment. Here are key optimization strategies.</p>
+      
+      <p>Use React.memo() for functional components to prevent unnecessary re-renders. This higher-order component memoizes your component and only re-renders when props change.</p>
+      
+      <p>Implement useCallback() for functions passed as props. This hook memoizes functions, preventing child components from re-rendering when parent components re-render.</p>
+      
+      <p>The useMemo() hook is perfect for expensive calculations. It memoizes the result of a function and only recalculates when dependencies change.</p>
+      
+      <p>Code splitting with React.lazy() allows you to load components only when they're needed. This reduces the initial bundle size and improves load time.</p>
+      
+      <p>Virtualize long lists using libraries like react-window. Instead of rendering thousands of items at once, only render what's visible in the viewport.</p>
+    `,
+    image: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?auto=format&fit=crop&w=800&q=80",
+    author: "Lisa Thompson",
+    authorAvatar: "https://images.unsplash.com/photo-1544725176-7c40e5a71c5e?auto=format&fit=crop&w=100&q=80",
+    date: "Mar 5, 2024",
+    likes: 39,
+    dislikes: 4,
+    tags: ["react", "performance", "javascript", "frontend"],
+    readTime: 7
+  },
+  {
+    id: 6,
+    title: "Introduction to Node.js Microservices",
+    excerpt: "Building scalable applications with microservices architecture in Node.js.",
+    content: `
+      <p>Microservices architecture has become the standard for building large-scale, maintainable applications. Unlike monolithic architectures, microservices break applications into small, independent services.</p>
+      
+      <p>Each microservice should have a single responsibility. This follows the Single Responsibility Principle and makes services easier to develop, test, and deploy.</p>
+      
+      <p>Communication between services can happen through various methods. REST APIs are common, but message brokers like RabbitMQ or Kafka offer better scalability for complex systems.</p>
+      
+      <p>Containerization with Docker is essential for microservices. Each service runs in its own container, ensuring consistent environments across development, testing, and production.</p>
+      
+      <p>Orchestration tools like Kubernetes help manage containerized microservices at scale. They handle deployment, scaling, and self-healing of your services.</p>
+      
+      <p>Implement proper monitoring and logging. With multiple services, you need centralized logging and monitoring to track issues and performance across your system.</p>
+    `,
+    image: "https://images.unsplash.com/photo-1627398242454-45a1465c2479?auto=format&fit=crop&w=800&q=80",
+    author: "Alex Martinez",
+    authorAvatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=100&q=80",
+    date: "Mar 3, 2024",
+    likes: 47,
+    dislikes: 3,
+    tags: ["nodejs", "microservices", "backend", "docker"],
+    readTime: 9
+  }
 ];
 
 function Posts() {
@@ -56,6 +207,9 @@ function Posts() {
     image: '',
     currentTag: ''
   });
+
+  // Refs for comment inputs to maintain focus
+  const commentInputRefs = useRef({});
 
   // Load data from localStorage
   useEffect(() => {
@@ -337,11 +491,33 @@ function Posts() {
     ? filteredPosts.filter(post => bookmarkedPosts.includes(post.id))
     : filteredPosts;
 
-  // Comment Components (same as before)
+  // Comment Components with fixed focus issues
   const CommentItem = ({ comment, postId, depth = 0 }) => {
     const [showOptions, setShowOptions] = useState(false);
+    const [editText, setEditText] = useState(comment.text);
     const isReplying = activeReply?.postId === postId && activeReply?.commentId === comment.id;
     const isEditing = editingComment?.postId === postId && editingComment?.commentId === comment.id;
+
+    // Focus management for editing
+    useEffect(() => {
+      if (isEditing && commentInputRefs.current[`edit-${comment.id}`]) {
+        commentInputRefs.current[`edit-${comment.id}`].focus();
+        commentInputRefs.current[`edit-${comment.id}`].setSelectionRange(
+          editText.length,
+          editText.length
+        );
+      }
+    }, [isEditing, comment.id, editText.length]);
+
+    const handleEditSubmit = () => {
+      editComment(postId, comment.id, editText);
+    };
+
+    const handleEditKeyDown = (e) => {
+      if (e.key === 'Enter' && e.ctrlKey) {
+        handleEditSubmit();
+      }
+    };
 
     return (
       <div className={`${depth > 0 ? 'ml-6 pl-4 border-l-2' : ''} ${depth === 0 ? 'border-l-2 border-l-transparent' : ''}`} 
@@ -354,7 +530,7 @@ function Posts() {
                 alt={comment.author}
                 className="w-8 h-8 rounded-full"
               />
-              <div>
+              <div className="flex-1">
                 <div className="flex items-center space-x-2">
                   <span className="font-medium text-gray-900">{comment.author}</span>
                   <span className="text-gray-500 text-sm">•</span>
@@ -365,18 +541,30 @@ function Posts() {
                 </div>
                 
                 {isEditing ? (
-                  <textarea
-                    defaultValue={comment.text}
-                    className="w-full mt-2 p-2 border border-gray-300 rounded text-sm"
-                    rows={3}
-                    autoFocus
-                    onBlur={(e) => editComment(postId, comment.id, e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && e.ctrlKey) {
-                        editComment(postId, comment.id, e.target.value);
-                      }
-                    }}
-                  />
+                  <div className="mt-2">
+                    <textarea
+                      ref={el => commentInputRefs.current[`edit-${comment.id}`] = el}
+                      value={editText}
+                      onChange={(e) => setEditText(e.target.value)}
+                      className="w-full p-2 border border-gray-300 rounded text-sm"
+                      rows={3}
+                      onKeyDown={handleEditKeyDown}
+                    />
+                    <div className="flex justify-end space-x-2 mt-2">
+                      <button
+                        onClick={() => setEditingComment(null)}
+                        className="px-3 py-1 text-gray-600 text-sm border border-gray-300 rounded"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={handleEditSubmit}
+                        className="px-3 py-1 bg-secondary-500 text-white text-sm rounded"
+                      >
+                        Save
+                      </button>
+                    </div>
+                  </div>
                 ) : (
                   <p className="text-gray-700 mt-1 text-sm">{comment.text}</p>
                 )}
@@ -386,17 +574,18 @@ function Posts() {
             <div className="relative">
               <button 
                 onClick={() => setShowOptions(!showOptions)}
-                className="p-1 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-800 transition-colors"
+                className="p-2 rounded-full hover:bg-gray-100 text-gray-600 hover:text-gray-800 transition-colors"
                 aria-label="Comment options"
               >
-                <FiMoreVertical size={14} />
+                <FiMoreVertical size={16} />
               </button>
               
               {showOptions && (
-                <div className="absolute right-0 top-6 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-10">
+                <div className="absolute right-0 top-8 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-10 min-w-[120px]">
                   <button 
                     onClick={() => {
-                      setEditingComment({ postId, commentId: comment.id, text: comment.text });
+                      setEditingComment({ postId, commentId: comment.id });
+                      setEditText(comment.text);
                       setShowOptions(false);
                     }}
                     className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 w-full text-left"
@@ -422,7 +611,7 @@ function Posts() {
           <div className="flex items-center space-x-4 mt-3">
             <button 
               onClick={() => likeComment(postId, comment.id)}
-              className="flex items-center space-x-1 text-gray-500 hover:text-red-500 text-sm"
+              className="flex items-center space-x-1 text-gray-600 hover:text-red-500 text-sm transition-colors px-2 py-1 rounded hover:bg-red-50"
             >
               <FiHeart size={14} />
               <span>{comment.likes || 0}</span>
@@ -430,7 +619,7 @@ function Posts() {
             
             <button 
               onClick={() => setActiveReply(isReplying ? null : { postId, commentId: comment.id })}
-              className="flex items-center space-x-1 text-gray-500 hover:text-secondary-600 text-sm"
+              className="flex items-center space-x-1 text-gray-600 hover:text-secondary-600 text-sm transition-colors px-2 py-1 rounded hover:bg-secondary-50"
             >
               <FiCornerUpLeft size={14} />
               <span>Reply</span>
@@ -466,6 +655,13 @@ function Posts() {
 
   const CommentForm = ({ postId, parentId = null, onCancel, onSubmit, placeholder = "Write a comment..." }) => {
     const [text, setText] = useState("");
+    const textareaRef = useRef(null);
+
+    useEffect(() => {
+      if (textareaRef.current) {
+        textareaRef.current.focus();
+      }
+    }, []);
 
     const handleSubmit = (e) => {
       e.preventDefault();
@@ -484,6 +680,7 @@ function Posts() {
           />
           <div className="flex-1">
             <textarea
+              ref={textareaRef}
               placeholder={placeholder}
               value={text}
               onChange={(e) => setText(e.target.value)}
@@ -495,14 +692,14 @@ function Posts() {
                 <button
                   type="button"
                   onClick={onCancel}
-                  className="px-4 py-2 text-gray-600 text-sm hover:text-gray-800 rounded-lg border border-gray-300"
+                  className="px-4 py-2 text-gray-600 text-sm hover:text-gray-800 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors"
                 >
                   Cancel
                 </button>
               )}
               <button
                 type="submit"
-                className="px-4 py-2 bg-secondary-500 text-white text-sm hover:bg-secondary-600 rounded-lg disabled:opacity-50"
+                className="px-4 py-2 bg-secondary-500 text-white text-sm hover:bg-secondary-600 rounded-lg disabled:opacity-50 transition-colors"
                 disabled={!text.trim()}
               >
                 {parentId ? 'Reply' : 'Comment'}
@@ -533,10 +730,10 @@ function Posts() {
           <h3 className="text-xl font-semibold text-gray-900">Create New Post</h3>
           <button 
             onClick={closeCreateModal}
-            className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+            className="p-2 rounded-full hover:bg-gray-100 transition-colors text-gray-600 hover:text-gray-800"
             aria-label="Close modal"
           >
-            <FiX />
+            <FiX size={20} />
           </button>
         </div>
         
@@ -583,7 +780,7 @@ function Posts() {
                     #{tag}
                     <button 
                       onClick={() => removeTag(tag)}
-                      className="ml-2 hover:text-secondary-600"
+                      className="ml-2 hover:text-secondary-600 transition-colors"
                       aria-label={`Remove tag ${tag}`}
                     >
                       <FiX size={14} />
@@ -602,7 +799,7 @@ function Posts() {
                 />
                 <button
                   onClick={addTag}
-                  className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 flex items-center"
+                  className="px-4 py-2 bg-secondary-500 text-white rounded-lg hover:bg-secondary-600 transition-colors flex items-center"
                 >
                   <FiTag className="mr-2" />
                   Add
@@ -625,14 +822,14 @@ function Posts() {
           <div className="flex justify-end space-x-3 mt-6 pt-6 border-t">
             <button
               onClick={closeCreateModal}
-              className="px-6 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
+              className="px-6 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
             >
               Cancel
             </button>
             <button
               onClick={handleCreatePost}
               disabled={!newPost.title.trim() || !newPost.excerpt.trim() || !newPost.content.trim()}
-              className="px-6 py-2 bg-secondary-500 text-white rounded-lg hover:bg-secondary-600 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-6 py-2 bg-secondary-500 text-white rounded-lg hover:bg-secondary-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               Publish Post
             </button>
@@ -651,7 +848,7 @@ function Posts() {
         </h2>
         <button
           onClick={openCreateModal}
-          className="flex items-center space-x-2 px-6 py-3 bg-secondary-500 text-white rounded-lg hover:bg-secondary-600 transition-colors shadow-lg"
+          className="flex items-center space-x-2 px-6 py-3 rounded-lg text-white shadow-lg transition-all bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 hover:from-purple-600 hover:via-pink-600 hover:to-red-600"
         >
           <FiPlus />
           <span>Create Post</span>
@@ -674,17 +871,18 @@ function Posts() {
         
         <div className="flex space-x-2">
           <button 
-            className={`px-4 py-2 rounded-lg transition-colors ${
+            className={`px-4 py-2 rounded-lg transition-colors font-medium ${
               activeFilter === 'all' 
-                ? 'bg-secondary-500 text-white shadow-lg' 
+                ? 'bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 text-white shadow-lg' 
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
             onClick={() => setActiveFilter('all')}
           >
             All Posts
           </button>
+
           <button 
-            className={`px-4 py-2 rounded-lg flex items-center transition-colors ${
+            className={`px-4 py-2 rounded-lg flex items-center transition-colors font-medium ${
               activeFilter === 'bookmarked' 
                 ? 'bg-warning-500 text-white shadow-lg' 
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -715,7 +913,7 @@ function Posts() {
                   onClick={(e) => handleBookmark(post.id, e)}
                   className={`p-2 rounded-full backdrop-blur-sm transition-colors ${
                     bookmarkedPosts.includes(post.id) 
-                      ? 'bg-warning-100 text-warning-600' 
+                      ? 'bg-warning-500 text-white' 
                       : 'bg-white/80 text-gray-600 hover:bg-white'
                   }`}
                   aria-label={bookmarkedPosts.includes(post.id) ? "Remove bookmark" : "Bookmark post"}
@@ -756,25 +954,25 @@ function Posts() {
                 <div className="flex items-center space-x-4">
                   <button 
                     onClick={(e) => handleLike(post.id, e)}
-                    className={`flex items-center transition-colors ${
+                    className={`flex items-center transition-colors px-2 py-1 rounded ${
                       userEngagement[post.id] === 'liked' 
-                        ? 'text-success-600' 
-                        : 'text-gray-600 hover:text-success-600'
+                        ? 'bg-success-100 text-success-600' 
+                        : 'text-gray-600 hover:text-success-600 hover:bg-success-50'
                     }`}
                   >
                     <FiThumbsUp className="mr-1" /> {post.likes}
                   </button>
                   <button 
                     onClick={(e) => handleDislike(post.id, e)}
-                    className={`flex items-center transition-colors ${
+                    className={`flex items-center transition-colors px-2 py-1 rounded ${
                       userEngagement[post.id] === 'disliked' 
-                        ? 'text-warning-600' 
-                        : 'text-gray-600 hover:text-warning-600'
+                        ? 'bg-warning-100 text-warning-600' 
+                        : 'text-gray-600 hover:text-warning-600 hover:bg-warning-50'
                     }`}
                   >
                     <FiThumbsDown className="mr-1" /> {post.dislikes}
                   </button>
-                  <span className="flex items-center text-gray-600">
+                  <span className="flex items-center text-gray-600 px-2 py-1">
                     <FiMessageCircle className="mr-1" /> {getTotalComments(post.id)}
                   </span>
                 </div>
@@ -811,16 +1009,16 @@ function Posts() {
             <div className="sticky top-0 bg-white border-b z-10 flex justify-between items-center p-6">
               <button 
                 onClick={closePostModal}
-                className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
+                className="flex items-center text-gray-600 hover:text-gray-900 transition-colors px-3 py-1 rounded hover:bg-gray-100"
               >
                 <FiArrowLeft className="mr-2" /> Back to posts
               </button>
               <button 
                 onClick={closePostModal}
-                className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+                className="p-2 rounded-full hover:bg-gray-100 transition-colors text-gray-600 hover:text-gray-800"
                 aria-label="Close modal"
               >
-                <FiX />
+                <FiX size={20} />
               </button>
             </div>
             
@@ -860,8 +1058,8 @@ function Posts() {
                       onClick={(e) => handleLike(selectedPost.id, e)}
                       className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
                         userEngagement[selectedPost.id] === 'liked' 
-                          ? 'bg-success-50 text-success-600' 
-                          : 'hover:bg-success-50 text-gray-600 hover:text-success-600'
+                          ? 'bg-success-100 text-success-600 border border-success-200' 
+                          : 'hover:bg-success-50 text-gray-600 hover:text-success-600 border border-gray-200'
                       }`}
                     >
                       <FiThumbsUp />
@@ -871,14 +1069,14 @@ function Posts() {
                       onClick={(e) => handleDislike(selectedPost.id, e)}
                       className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
                         userEngagement[selectedPost.id] === 'disliked' 
-                          ? 'bg-warning-50 text-warning-600' 
-                          : 'hover:bg-warning-50 text-gray-600 hover:text-warning-600'
+                          ? 'bg-warning-100 text-warning-600 border border-warning-200' 
+                          : 'hover:bg-warning-50 text-gray-600 hover:text-warning-600 border border-gray-200'
                       }`}
                     >
                       <FiThumbsDown />
                       <span>{selectedPost.dislikes}</span>
                     </button>
-                    <span className="flex items-center space-x-2 px-4 py-2 text-gray-600">
+                    <span className="flex items-center space-x-2 px-4 py-2 text-gray-600 border border-gray-200 rounded-lg">
                       <FiMessageCircle />
                       <span>{getTotalComments(selectedPost.id)} Comments</span>
                     </span>
@@ -889,14 +1087,14 @@ function Posts() {
                       onClick={(e) => handleBookmark(selectedPost.id, e)}
                       className={`p-3 rounded-full transition-colors ${
                         bookmarkedPosts.includes(selectedPost.id) 
-                          ? 'bg-warning-100 text-warning-600' 
-                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                          ? 'bg-warning-100 text-warning-600 border border-warning-200' 
+                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-200'
                       }`}
                       aria-label={bookmarkedPosts.includes(selectedPost.id) ? "Remove bookmark" : "Bookmark post"}
                     >
                       <FiBookmark className={bookmarkedPosts.includes(selectedPost.id) ? "fill-current" : ""} />
                     </button>
-                    <button className="p-3 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors">
+                    <button className="p-3 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors border border-gray-200">
                       <FiShare2 />
                     </button>
                   </div>
